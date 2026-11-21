@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>py-words, primer plano del icono de Android</title>
+  <g id="Layer_1" transform="translate(512 512) scale(0.6) translate(-512 -512)">
+    
+    <g>
+      <g id="g4">
+        <path id="path3" d="M339.847 732.154 C394.59 715.827 451.734 720.149 511.28 745.12 C570.825 720.149 628.449 715.827 684.153 732.154 L684.153 903.587 C628.449 888.22 570.825 896.864 511.28 929.518 C451.734 896.864 394.59 888.22 339.847 903.587 Z" fill="none" stroke="#f7b72a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+        <path id="path4" d="M511.28 745.12 L511.28 929.518" fill="none" stroke="#f7b72a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text transform="matrix(1 0 0 1 150.5 655.477)" x="0" y="0" xml:space="preserve" font-family="&apos;Ubuntu Sans&apos;, sans-serif" font-size="250" fill="#ffffff"><tspan x="0" y="0">Words</tspan></text>
+      <text transform="matrix(1 0 0 1 329.21 348.282)" x="0" y="0" xml:space="preserve" font-family="&apos;Ubuntu Sans&apos;, sans-serif" font-size="270" fill="#f7b72a"><tspan x="0" y="0">py-</tspan></text>
+    </g>
+  </g>
+</svg>

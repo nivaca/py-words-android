@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="lookup_label">Buscar en py-words</string>
+    <string name="network_error">No se pudo llegar a py-words</string>
+    <string name="network_error_detail">Revise la conexión a internet y vuelva a intentarlo.</string>
+    <string name="retry">Volver a intentarlo</string>
+    <string name="no_browser">No hay ninguna app para abrir este enlace</string>
+</resources>

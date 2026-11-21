@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <!-- El fondo del icono de py-words -->
+    <color name="icon_background">#292929</color>
+</resources>

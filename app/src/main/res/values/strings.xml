@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="app_name" translatable="false">py-words</string>
+    <string name="lookup_label">Look up in py-words</string>
+    <string name="network_error">Could not reach py-words</string>
+    <string name="network_error_detail">Check the connection to the internet and try again.</string>
+    <string name="retry">Try again</string>
+    <string name="no_browser">There is no app to open this link</string>
+</resources>
