@@ -131,8 +131,12 @@ the change from online to the phone and back, with the search kept (*amicorum*, 
 virumque cano*); the first start on the phone and a later one; a search on the phone with
 Wi-Fi and mobile data off; dark mode on the phone; Back after a change of source; the
 button of the error screen that changes to the phone; and the signed release APK, shrunk
-with R8, on the phone source. Android lint reports no errors, and the Kotlin compiler no
-warnings.
+with R8, on the phone source. Then I installed the release APK of 2.0 on a moto g55 5G with
+Android 16, in dark mode, and repeated the main steps there: a word online; the change to
+the phone, whose first start took about 12 seconds; a later start with airplane mode on
+(*arma virumque cano*), which took under 4 seconds and gave the whole line without the
+Internet; the change back online with the search kept (*lupus*), and the turn of the
+screen to landscape. Android lint reports no errors, and the Kotlin compiler no warnings.
 
 The project has 20 files under `app/` besides the build output: two Kotlin files of 414
 lines, one Python file of 45, 270 lines of XML in the manifest, the resources and the
