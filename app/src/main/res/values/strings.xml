@@ -3,8 +3,19 @@
 <resources>
     <string name="app_name" translatable="false">py-words</string>
     <string name="lookup_label">Look up in py-words</string>
+    <string name="menu">Menu</string>
+    <string name="source_online">Online · py-words.uniandes.edu.co</string>
+    <string name="source_phone">On this phone · py-words %1$s</string>
+    <string name="source_phone_short">On this phone</string>
+    <string name="menu_online">Online (py-words.uniandes.edu.co)</string>
+    <string name="menu_phone">On this phone (no Internet needed)</string>
+    <string name="menu_reload">Reload</string>
+    <string name="menu_browser">Open in the browser</string>
+    <string name="loading">Loading the dictionary…</string>
     <string name="network_error">Could not reach py-words</string>
-    <string name="network_error_detail">Check the connection to the internet and try again.</string>
+    <string name="network_error_detail">Check the connection to the Internet and try again, or use the dictionary on this phone.</string>
+    <string name="phone_error">py-words could not start on this phone</string>
     <string name="retry">Try again</string>
+    <string name="use_phone">Use it on this phone</string>
     <string name="no_browser">There is no app to open this link</string>
 </resources>

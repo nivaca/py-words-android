@@ -3,18 +3,19 @@ How py-words for Android was made
 
 *[Leer en español](DESCRIPCIÓN_es.md)*
 
-py-words for Android is a small Android app for the web version of py-words, the
-Latin-English-Latin and Latin-Spanish-Latin dictionary with inflectional morphology, which
-runs at <https://py-words.uniandes.edu.co>. Nicolas Vaughan made it in November 2026. It
-came from the Wiktionary Reader app, made the same month, which gave it its build files and
-its manner of working; but where Wiktionary Reader builds its own pages, this one only shows
-the site, so it is much smaller. The current version is 1.0. Here I explain how it was made,
-in four stages.
+py-words for Android is an Android app for py-words, the Latin-English-Latin and
+Latin-Spanish-Latin dictionary with inflectional morphology. It shows py-words either from
+the site <https://py-words.uniandes.edu.co> or from a copy of the program that runs inside
+the app, without the Internet. Nicolas Vaughan made it in November 2026. It came from the
+Wiktionary Reader app, made the same month, which gave it its build files and its manner of
+working. Version 1.0 only showed the site; version 2.0, the current one, added the copy on
+the phone. Here I explain how it was made, in five stages.
 
 py-words for Android is free software, under the GNU General Public License, version 3 or
-later. It uses only the Android framework and the Kotlin standard library (under the Apache
-License 2.0), with no other libraries. The dictionary and its data belong to py-words, with
-their own licenses, which the site shows under "About".
+later. It uses the Android framework, the Kotlin standard library (under the Apache License
+2.0) and Chaquopy (under the MIT License), which brings Python (under the Python Software
+Foundation License). The app carries py-words, under the same GPL, whose data has its own
+licenses, shown under "About" in its page.
 
 Nicolas Vaughan is Associate Professor of Literature at the School of Arts and Humanities
 of the Universidad de los Andes, Bogotá, Colombia.
@@ -75,19 +76,64 @@ was made only when the history changed. After the activity is created again, the
 history did not trigger that, so I made the app check it once at the start too. Before
 Android 13, `onBackPressed` does the same work.
 
+5. py-words on the phone
+------------------------
+
+Version 1.0 was useless without the Internet, and the question came soon: could the app
+run py-words from its GitHub repository instead of the site? Not by fetching code at run
+time, but by carrying it. py-words needs nothing outside the standard library of Python,
+and its web page is a WSGI application, `public_app()` in `words_web.py`, the one the site
+itself runs, which keeps each visitor's settings in cookies and writes nothing on the
+server. So the plan was to run that same application inside the app, on `127.0.0.1`, and
+point the WebView at it.
+
+Python on Android comes from Chaquopy, a Gradle plugin that puts CPython in the APK. Its
+version 17.2 supports the Android plugin 9.5 of the project and Python 3.13, which py-words
+needs for now; Python 3.12 and later run only on 64-bit devices, so the app now asks for
+one. py-words enters the project as a git submodule, `py-words/`, fixed at the tag `v3.28`,
+and a Gradle task copies from it only what the server needs: the Python modules (not the
+window or the terminal, which need tkinter or curses, absent on Android), `data/` and the
+two icons that the page shows. Chaquopy compiles them to bytecode with the `python3.13` of
+the build machine.
+
+A short module of the app, `pywords_android.py`, starts the server once per process, in a
+thread of its own, at a free port, after pointing the cache of py-words to the cache folder
+of Android and leaving the configuration and the history out of the disk. `LocalServer.kt`
+starts Python and calls it in the background, because loading the dictionary takes time:
+on the desktop, 1.9 seconds the first time, while the pickle cache of py-words is made,
+and 0.4 afterwards. On the emulator it was about 11 seconds the first time (Chaquopy also
+unpacks the 38 MB of data) and 6 afterwards; meanwhile the app shows "Loading the
+dictionary…". The WebView needs permission to speak plain HTTP to `127.0.0.1`, and only
+there, which a network security configuration gives.
+
+The screen gained a thin bar at the top, with the source of py-words (and, on the phone,
+its version) and a menu to change it. Changing the source keeps the search on the screen,
+and forgets the history, so that Back does not jump from one source to the other. When the
+site cannot be reached, the error screen offers the copy on the phone. The source chosen
+is kept in the preferences of the app; a new install starts online. The state of the
+WebView is restored only for the same server, since the port changes each time Android
+closes the app.
+
+The price is size: the APK went from 57 KB to about 42 MB, nearly all of it the Python
+runtime and the dictionary.
+
 Testing
 -------
 
-There are no automatic tests; the app is a frame around a site, and almost all the
-behaviour that matters belongs to the site. I checked it by hand on the Android emulator
-(Android 16), with screenshots taken through adb: the home page; a word sent from the
-selection menu (*amicorum*, *rosa*, *lupus*); the back gesture to the home page and out of
-the app; the error screen with Wi-Fi and mobile data off, and the button that loads the
+There are no automatic tests of the app; py-words has its own, and almost all the
+behaviour that matters belongs to it. I checked the app by hand on the Android emulator
+(Android 16), with screenshots taken through adb. For 1.0: the home page; a word sent from
+the selection menu (*amicorum*, *rosa*, *lupus*); the back gesture to the home page and out
+of the app; the error screen with Wi-Fi and mobile data off, and the button that loads the
 same search when the connection returns; dark mode, both when starting and when changing
-with the app open; and the settings of the site, which survived closing the app. Android
-lint reports no errors, and the Kotlin compiler no warnings. The release APK, shrunk with
-R8 and signed, is 57 KB.
+with the app open; and the settings of the site, which survived closing the app. For 2.0:
+the change from online to the phone and back, with the search kept (*amicorum*, *arma
+virumque cano*); the first start on the phone and a later one; a search on the phone with
+Wi-Fi and mobile data off; dark mode on the phone; Back after a change of source; the
+button of the error screen that changes to the phone; and the signed release APK, shrunk
+with R8, on the phone source. Android lint reports no errors, and the Kotlin compiler no
+warnings.
 
-The project has 16 files under `app/` besides the build output: one Kotlin file of 242
-lines, 161 lines of XML in the manifest, the resources and the layout, and five PNG
-images of the icon.
+The project has 20 files under `app/` besides the build output: two Kotlin files of 414
+lines, one Python file of 45, 270 lines of XML in the manifest, the resources and the
+layout, and five PNG images of the icon. The build file of the app has 114 lines.

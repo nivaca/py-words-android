@@ -2,8 +2,19 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
     <string name="lookup_label">Buscar en py-words</string>
+    <string name="menu">Menú</string>
+    <string name="source_online">En línea · py-words.uniandes.edu.co</string>
+    <string name="source_phone">En este teléfono · py-words %1$s</string>
+    <string name="source_phone_short">En este teléfono</string>
+    <string name="menu_online">En línea (py-words.uniandes.edu.co)</string>
+    <string name="menu_phone">En este teléfono (sin internet)</string>
+    <string name="menu_reload">Volver a cargar</string>
+    <string name="menu_browser">Abrir en el navegador</string>
+    <string name="loading">Cargando el diccionario…</string>
     <string name="network_error">No se pudo llegar a py-words</string>
-    <string name="network_error_detail">Revise la conexión a internet y vuelva a intentarlo.</string>
+    <string name="network_error_detail">Revise la conexión a internet y vuelva a intentarlo, o use el diccionario de este teléfono.</string>
+    <string name="phone_error">py-words no pudo arrancar en este teléfono</string>
     <string name="retry">Volver a intentarlo</string>
+    <string name="use_phone">Usarlo en este teléfono</string>
     <string name="no_browser">No hay ninguna app para abrir este enlace</string>
 </resources>

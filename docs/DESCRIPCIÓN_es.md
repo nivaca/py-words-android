@@ -1,36 +1,44 @@
-# py-words para Android 1.0: descripción
+# py-words para Android 2.0: descripción
 
 *[Read in English](DESCRIPTION.md)*
 
 ## Análisis
 
-py-words para Android es una app pequeña de Android para la versión web de py-words, el diccionario latín-inglés-latín y latín-español-latín con morfología flexiva, que funciona en https://py-words.uniandes.edu.co. Es solo una interfaz: muestra el sitio en una ventana propia, y las búsquedas, los resultados y los ajustes son todos del sitio. Fue desarrollada por Nicolás Vaughan en noviembre de 2026 y es software libre, bajo la Licencia Pública General de GNU, versión 3 o posterior; el diccionario y sus datos pertenecen a py-words, con sus propias licencias.
+py-words para Android es una app de Android para py-words, el diccionario latín-inglés-latín y latín-español-latín con morfología flexiva. Muestra py-words desde una de dos fuentes: el sitio https://py-words.uniandes.edu.co, o una copia del programa que corre dentro de la app, sin internet. Fue desarrollada por Nicolás Vaughan en noviembre de 2026 y es software libre, bajo la Licencia Pública General de GNU, versión 3 o posterior; py-words, que la app lleva, tiene la misma licencia, y sus datos, las suyas propias.
 
-El requisito fue ese: una app que sirva de entrada al sitio, sin copia del diccionario. De ahí se siguieron los demás, casi todos tomados de Wiktionary Reader, la otra app del autor. Debía ocupar la pantalla entera y respetar el modo oscuro del sistema; mantener dentro las páginas del sitio y abrir fuera los demás enlaces; volver atrás por las páginas visitadas; conservar los ajustes del sitio de una vez a otra, y poder consultarse desde cualquier app con la palabra seleccionada. Cuando no hay conexión, tenía que decirlo con claridad y ofrecer un segundo intento.
+La versión 1.0 respondía a un requisito simple: una app que sirviera de entrada al sitio, sin copia del diccionario. De ahí se siguieron los demás, casi todos tomados de Wiktionary Reader, la otra app del autor. Debía ocupar la pantalla entera y respetar el modo oscuro del sistema; mantener dentro las páginas de py-words y abrir fuera los demás enlaces; volver atrás por las páginas visitadas; conservar los ajustes de una vez a otra, y poder consultarse desde cualquier app con la palabra seleccionada. Cuando no hay conexión, tenía que decirlo con claridad y ofrecer un segundo intento.
+
+La 2.0 vino de una pregunta: si la app podía correr py-words desde su repositorio de GitHub en lugar del sitio. La respuesta fue llevar el programa dentro de la app y dejar elegir la fuente. Se pidió que las dos convivieran, con un cambio sencillo entre ellas, y que la página fuera la misma en ambas.
 
 ## Diseño
 
-Hay una sola pantalla y una sola clase, `MainActivity.kt`. Su vista es un `FrameLayout` con el WebView, una barra de progreso fina encima y una capa para el error de red, oculta mientras el sitio responde.
+Hay una pantalla, `MainActivity.kt`, y un objeto, `LocalServer.kt`. La vista tiene arriba una barra fina, con la fuente de py-words y el menú (⋮), y debajo el WebView, con una barra de progreso, una capa de carga («Cargando el diccionario…») y otra para los errores.
 
-La decisión principal fue no hacer nada que el sitio ya haga. El sitio genera sus páginas en el servidor, con formularios corrientes (`GET /?q=…` para buscar, `POST` para los ajustes); guarda los ajustes y las búsquedas anteriores en una galleta que dura un año, y tiene su propia versión oscura bajo `prefers-color-scheme: dark`. Bastaba con un WebView bien configurado. No hay datos propios ni preferencias de la app: lo único que se guarda es la galleta del sitio, en el almacén de galletas del WebView.
+La decisión principal fue no hacer nada que py-words ya haga. Su página se genera en el servidor, con formularios corrientes (`GET /?q=…` para buscar, `POST` para los ajustes); guarda los ajustes y las búsquedas anteriores en una galleta, y tiene su propia versión oscura bajo `prefers-color-scheme: dark`. Para la fuente del teléfono se siguió la misma idea: en vez de escribir otra interfaz, la app corre la aplicación WSGI del sitio, `public_app()` de `words_web.py`, en `127.0.0.1`, y el WebView la abre como abriría el sitio. Esa aplicación guarda todo en las galletas de cada visitante y nada en el servidor, de modo que en el teléfono tampoco escribe más que la caché del diccionario.
 
-La app usa solo el framework de Android, sin AndroidX, igual que Wiktionary Reader, de la que hereda los archivos de Gradle, el tema y el manejo de las barras del sistema.
+py-words entra en el proyecto como submódulo de git (`py-words/`), fijado en una etiqueta de su repositorio, hoy `v3.28`. La app guarda en sus preferencias solo la fuente elegida; una instalación nueva empieza en línea.
+
+Fuera de Chaquopy, que trae Python, la app usa solo el framework de Android, sin AndroidX, igual que Wiktionary Reader, de la que hereda los archivos de Gradle, el tema y el manejo de las barras del sistema.
 
 ## Implementación
 
-Está escrita en Kotlin, en un archivo de 242 líneas, con 161 líneas de XML entre el manifiesto, los recursos y la vista. No usa más que el framework de Android y la biblioteca estándar de Kotlin. El APK de depuración pesa 2,6 MB; el release, reducido con R8 y firmado, 57 KB. El bloque de información de dependencias que el plugin de Android añade por omisión está desactivado, porque va cifrado con una clave de Google.
+Está escrita en Kotlin (dos archivos, 414 líneas) y Python (un archivo, 45), con 270 líneas de XML entre el manifiesto, los recursos y la vista. Usa el framework de Android, la biblioteca estándar de Kotlin y Chaquopy 17.2, con Python 3.13. El APK release, reducido con R8 y firmado, pesa unos 42 MB, casi todo el intérprete y el diccionario. El bloque de información de dependencias que el plugin de Android añade por omisión está desactivado, porque va cifrado con una clave de Google.
 
-### Los enlaces
+### py-words en el teléfono
 
-`shouldOverrideUrlLoading` deja en el WebView todo enlace `https` a `py-words.uniandes.edu.co` y manda los demás a otra app con `ACTION_VIEW`. Las descargas, que el sitio hoy no ofrece, irían al navegador. La galleta se escribe a disco en `onPause`, para que un ajuste cambiado no se pierda si Android cierra la app.
+Una tarea de Gradle copia del submódulo los módulos de Python (sin los de la ventana y la terminal, que necesitan tkinter o curses, ausentes en Android), `data/` y los dos iconos que muestra la página; Chaquopy los compila a *bytecode*. `pywords_android.py` arranca el servidor una vez por proceso, en un hilo propio y en un puerto libre, tras llevar la caché de py-words a la carpeta de caché de Android y dejar fuera del disco la configuración y el historial. `LocalServer.kt` arranca Python y lo llama en segundo plano, porque la primera carga tarda (unos 11 segundos en el emulador, mientras Chaquopy desempaca los 38 MB de datos y py-words hace su caché; unos 6 después). La configuración de seguridad de red permite HTTP sin cifrar solo hacia `127.0.0.1`.
 
-### Desde otras apps
+### Las dos fuentes
 
-La app aparece en el menú del texto seleccionado («Buscar en py-words», `PROCESS_TEXT`) y acepta texto compartido (`SEND`); los dos casos se convierten en `/?q=PALABRA`, la misma dirección de los ejemplos de la portada. Un texto de más de 500 caracteres se descarta. También se ofrece para abrir los enlaces del sitio (`VIEW`), sin verificar el dominio, así que Android pregunta al usuario.
+Al cambiar de fuente, la app abre en la otra la búsqueda que había en pantalla y olvida el historial, para que Atrás no salte de una fuente a otra. La pantalla de error de la fuente en línea ofrece pasar al teléfono. El estado del WebView solo se recupera para el mismo servidor, porque el puerto del teléfono cambia cada vez que Android cierra la app.
+
+### Los enlaces y otras apps
+
+`shouldOverrideUrlLoading` deja en el WebView los enlaces a la fuente actual y manda los demás a otra app. La galleta se escribe a disco en `onPause`. La app aparece en el menú del texto seleccionado («Buscar en py-words», `PROCESS_TEXT`) y acepta texto compartido (`SEND`); los dos casos se convierten en `/?q=PALABRA`. Un texto de más de 500 caracteres se descarta. Los enlaces al sitio (`VIEW`) se abren en la fuente elegida.
 
 ### El modo oscuro y el gesto de volver
 
-Al cambiar el sistema a modo oscuro con la app abierta, la actividad se crea de nuevo para tomar el tema oscuro (si no, los iconos de la barra de estado seguían claros); el WebView guarda su estado y lo recupera, con la página y su historial. Desde Android 13 el gesto de volver se reclama de antemano: la app lo hace solo mientras el WebView tiene adónde volver, y lo comprueba también al crearse, porque el historial recuperado no avisa. Antes de Android 13 lo hace `onBackPressed`.
+Al cambiar a modo oscuro, la actividad se crea de nuevo para tomar el tema oscuro, y el WebView recupera la página y su historial; el servidor del teléfono sigue corriendo. Desde Android 13 el gesto de volver se reclama solo mientras hay adónde volver, y se comprueba también al crearse la actividad.
 
 ### El icono
 
@@ -38,14 +46,16 @@ Es el de py-words. Para el icono adaptable se quitó su fondo, que pasó a ser e
 
 ## Validación
 
-No hay pruebas automáticas: la app es un marco alrededor de un sitio, y casi todo lo que importa es del sitio. Se comprobó a mano en el emulador de Android (Android 16), con capturas de pantalla tomadas por adb: la portada; palabras enviadas desde el menú de la selección (*amicorum*, *rosa*, *lupus*); el gesto de volver, hasta la portada y fuera de la app; la pantalla de error con el wifi y los datos apagados, y el botón que, de vuelta la conexión, carga la misma búsqueda; el modo oscuro al abrir la app y al cambiarlo con la app abierta, y los ajustes del sitio, que sobrevivieron a cerrar la app. Esas pruebas mostraron los dos defectos que se corrigieron (la barra de estado clara en modo oscuro y el gesto de volver tras recrear la actividad). El lint de Android no da errores y el compilador de Kotlin no da advertencias.
+La app no tiene pruebas automáticas; py-words tiene las suyas, y casi todo lo que importa es de py-words. Se comprobó a mano en el emulador de Android (Android 16), con capturas de pantalla tomadas por adb. En la 1.0: la portada; palabras enviadas desde el menú de la selección (*amicorum*, *rosa*, *lupus*); el gesto de volver; la pantalla de error sin red y el botón que, de vuelta la conexión, carga la misma búsqueda; el modo oscuro al abrir la app y al cambiarlo con la app abierta, y los ajustes, que sobrevivieron a cerrar la app. Esas pruebas mostraron dos defectos que se corrigieron (la barra de estado clara en modo oscuro y el gesto de volver tras recrear la actividad).
+
+En la 2.0: el cambio de la fuente en línea al teléfono y de vuelta, con la búsqueda conservada (*amicorum*, *arma virumque cano*); el primer arranque en el teléfono y uno posterior; una búsqueda en el teléfono con el wifi y los datos apagados; el modo oscuro en el teléfono; Atrás después de cambiar de fuente; el botón de la pantalla de error que pasa al teléfono, y el APK release firmado, reducido con R8, con la fuente del teléfono. Antes, en el escritorio, se midió la carga de `public_app()` con Python 3.13 (1,9 segundos sin caché, 0,4 con ella). El lint de Android no da errores y el compilador de Kotlin no da advertencias.
 
 ## Plataforma
 
-Funciona en Android 10 (API 29) o posterior, en cualquier teléfono o tableta; se compila contra la API 36. Necesita internet siempre, porque todo lo hace el sitio. No pide más permiso que el de internet.
+Funciona en Android 10 (API 29) o posterior, en teléfonos y tabletas de 64 bits (arm64-v8a; también x86_64, para el emulador), porque Python 3.13 solo corre en ellos; se compila contra la API 36. Internet hace falta solo para la fuente en línea y para Logeion, una fuente en la que py-words puede buscar. No pide más permiso que el de internet.
 
 ## Ambiente
 
-Fue desarrollada en Fedora Linux, con OpenJDK 25, el SDK de Android (plataforma 36, build-tools 36.1) y Gradle 9.8 con el Android Gradle Plugin 9.5, que trae Kotlin integrado. El sitio, py-words, tiene su código en https://github.com/nivaca/py-words.
+Fue desarrollada en Fedora Linux, con OpenJDK 25, el SDK de Android (plataforma 36, build-tools 36.1), Gradle 9.8 con el Android Gradle Plugin 9.5, que trae Kotlin integrado, y Chaquopy 17.2. El código está en GitHub (https://github.com/nivaca/py-words-android) y en Codeberg (https://codeberg.org/nivaca/py-words-android), donde cada versión lleva una etiqueta `vVERSIÓN` y su APK firmado; el de py-words, en https://github.com/nivaca/py-words.
 
-Para compilarla hacen falta un JDK 17 o posterior y el SDK de Android, cuya ruta va en `local.properties` (`sdk.dir=…`) o en `ANDROID_HOME`. `./gradlew assembleDebug` produce `app/build/outputs/apk/debug/app-debug.apk`, que se instala con `adb install -r`. `./gradlew assembleRelease` produce el APK release, reducido con R8, firmado si existe `keystore.properties` (fuera de git) y copiado entonces a `dist/py-words-android-VERSIÓN.apk`. La app no tiene ajustes propios; los del sitio viven en su galleta, dentro de los datos de la app, y se borran al borrar esos datos desde los ajustes de Android.
+Para compilarla se clona con `git clone --recurse-submodules` (o se corre `git submodule update --init`), y hacen falta un JDK 17 o posterior, el SDK de Android, cuya ruta va en `local.properties` (`sdk.dir=…`) o en `ANDROID_HOME`, y `python3.13` en el `PATH`. `./gradlew assembleDebug` produce `app/build/outputs/apk/debug/app-debug.apk`, que se instala con `adb install -r`. `./gradlew assembleRelease` produce el APK release, firmado si existe `keystore.properties` (fuera de git) y copiado entonces a `dist/py-words-android-VERSIÓN.apk`. Para llevar un py-words más nuevo se mueve el submódulo a su etiqueta. La fuente elegida vive en las preferencias de la app (`settings.xml`); los ajustes de py-words, en sus galletas, y la caché del diccionario, en la carpeta de caché de la app.

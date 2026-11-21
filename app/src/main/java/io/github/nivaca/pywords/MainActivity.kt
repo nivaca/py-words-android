@@ -2,16 +2,19 @@
 // Copyright (C) 2026 Nicolas Vaughan <nicolasvaughan@proton.me>
 // This file is part of py-words for Android. See the LICENSE file for details.
 
-// La única pantalla de la app: el sitio de py-words en un WebView.  Todo lo
-// demás (la búsqueda, los resultados, los ajustes) lo hace el sitio; la app
-// solo le da una ventana, abre fuera los enlaces a otros sitios y recibe las
-// palabras que le mandan otras apps.
+// La única pantalla de la app: py-words en un WebView, de una de dos fuentes.
+// En línea es el sitio py-words.uniandes.edu.co; en el teléfono, el mismo
+// programa, que corre en la app (véase LocalServer) y no necesita internet.
+// Todo lo demás (la búsqueda, los resultados, los ajustes) lo hace py-words;
+// la app le da una ventana, abre fuera los enlaces a otros sitios y recibe
+// las palabras que le mandan otras apps.
 
 package io.github.nivaca.pywords
 
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -25,19 +28,32 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
+import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import java.net.URLEncoder
 
 class MainActivity : Activity() {
+    private enum class Source { ONLINE, PHONE }
+
     private lateinit var web: WebView
     private lateinit var progress: ProgressBar
+    private lateinit var loading: View
     private lateinit var error: View
+    private lateinit var sourceLabel: TextView
 
-    private var failedUrl: String? = null   // la página que no se pudo cargar
+    private val prefs by lazy { getSharedPreferences("settings", Context.MODE_PRIVATE) }
+
+    private var source = Source.ONLINE
+    private var base: String? = null        // null while py-words starts on the phone
+    private var pending: String? = null     // path and query to open once it has
+    private var failedUrl: String? = null    // the page that could not be loaded
     private var failed = false
+    private var forgetHistory = false       // after a change of source
     private var backCallback: OnBackInvokedCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +61,9 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
         web = findViewById(R.id.web)
         progress = findViewById(R.id.progress)
+        loading = findViewById(R.id.loading)
         error = findViewById(R.id.error)
+        sourceLabel = findViewById(R.id.source)
 
         // Since Android 15 the window fills the whole screen: keep the page
         // clear of the system bars and of the keyboard.  (Android 10 does not
@@ -60,27 +78,31 @@ class MainActivity : Activity() {
 
         setUpWebView()
         findViewById<Button>(R.id.retry).setOnClickListener { retry() }
+        findViewById<Button>(R.id.use_phone).setOnClickListener { switchTo(Source.PHONE) }
+        findViewById<ImageButton>(R.id.menu).setOnClickListener { showMenu(it) }
 
-        // Tras girar la pantalla o volver de segundo plano, la misma página
-        // y el mismo historial; si no, lo que pida otra app, o la portada.
-        if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) {
-            if (!handleIntent(intent)) web.loadUrl(HOME)
-        }
-        updateBack()
+        source = if (prefs.getString(PREF_SOURCE, null) == "phone") Source.PHONE else Source.ONLINE
+        // Tras girar la pantalla, la misma página y el mismo historial; si
+        // no, lo que pida otra app, o la portada.
+        if (savedInstanceState == null) pending = pathFor(intent)
+        begin(savedInstanceState)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        handleIntent(intent)
+        pathFor(intent)?.let { go(it) }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        web.saveState(outState)
+        if (base != null) {
+            web.saveState(outState)
+            outState.putString(STATE_BASE, base)
+        }
     }
 
     override fun onPause() {
-        // Los ajustes del sitio viven en una galleta: que llegue al disco.
+        // Los ajustes de py-words viven en una galleta: que llegue al disco.
         CookieManager.getInstance().flush()
         web.onPause()
         super.onPause()
@@ -96,28 +118,107 @@ class MainActivity : Activity() {
         super.onDestroy()
     }
 
-    /** A word or a link from another app; false if there is none. */
-    private fun handleIntent(intent: Intent?): Boolean {
-        when (intent?.action) {
-            Intent.ACTION_PROCESS_TEXT ->
-                return lookUp(intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString())
-            Intent.ACTION_SEND ->
-                return lookUp(intent.getStringExtra(Intent.EXTRA_TEXT))
-            Intent.ACTION_VIEW -> {
-                val uri = intent.data ?: return false
-                if (!isOurs(uri)) return false
-                load(uri.toString())
-                return true
+    // ---- the two sources ----------------------------------------------------- //
+
+    /** Opens the current source, restoring SAVED if it was the same one. */
+    private fun begin(saved: Bundle?) {
+        error.visibility = View.GONE
+        updateLabel()
+        when (source) {
+            Source.ONLINE -> ready(ONLINE, saved)
+            Source.PHONE -> {
+                base = null
+                loading.visibility = View.VISIBLE
+                LocalServer.start(this) { result ->
+                    if (source != Source.PHONE || isDestroyed) return@start
+                    loading.visibility = View.GONE
+                    result.onSuccess { port -> ready("http://127.0.0.1:$port", saved) }
+                        .onFailure { showError(getString(R.string.phone_error), it.message ?: "", phone = false) }
+                }
             }
         }
-        return false
     }
 
-    /** Busca en el sitio el texto que llegó de otra app. */
-    private fun lookUp(text: String?): Boolean {
-        val query = text?.trim()?.takeIf { it.isNotEmpty() && it.length <= MAX_QUERY } ?: return false
-        load(HOME + "?q=" + URLEncoder.encode(query, "UTF-8"))
-        return true
+    private fun ready(url: String, saved: Bundle?) {
+        base = url
+        updateLabel()
+        // El estado guardado solo vale para el mismo servidor (el puerto
+        // del teléfono cambia cada vez que Android cierra la app).
+        val restored = saved != null && saved.getString(STATE_BASE) == url &&
+            web.restoreState(saved) != null
+        if (!restored) load(url + (pending ?: "/"))
+        pending = null
+        updateBack()
+    }
+
+    private fun switchTo(next: Source) {
+        if (next == source && base != null) return
+        // La misma página en la otra fuente: una búsqueda sigue siendo la misma.
+        pending = currentPath()
+        source = next
+        prefs.edit().putString(PREF_SOURCE, if (next == Source.PHONE) "phone" else "online").apply()
+        web.stopLoading()
+        forgetHistory = true
+        begin(null)
+    }
+
+    /** The path and query of the page shown, if it is a page of py-words. */
+    private fun currentPath(): String {
+        val uri = web.url?.let { Uri.parse(it) } ?: return "/"
+        if (!isOurs(uri) || uri.encodedPath != "/") return "/"
+        return "/" + (uri.encodedQuery?.let { "?$it" } ?: "")
+    }
+
+    private fun updateLabel() {
+        sourceLabel.text = when (source) {
+            Source.ONLINE -> getString(R.string.source_online)
+            Source.PHONE -> LocalServer.version?.let { getString(R.string.source_phone, it) }
+                ?: getString(R.string.source_phone_short)
+        }
+    }
+
+    private fun showMenu(anchor: View) {
+        val menu = PopupMenu(this, anchor)
+        menu.menu.add(0, MENU_ONLINE, 0, R.string.menu_online).isChecked = source == Source.ONLINE
+        menu.menu.add(0, MENU_PHONE, 1, R.string.menu_phone).isChecked = source == Source.PHONE
+        menu.menu.setGroupCheckable(0, true, true)
+        menu.menu.add(1, MENU_RELOAD, 2, R.string.menu_reload)
+        if (source == Source.ONLINE) menu.menu.add(1, MENU_BROWSER, 3, R.string.menu_browser)
+        menu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                MENU_ONLINE -> switchTo(Source.ONLINE)
+                MENU_PHONE -> switchTo(Source.PHONE)
+                MENU_RELOAD -> if (base == null) retry() else { error.visibility = View.GONE; web.reload() }
+                MENU_BROWSER -> openOutside(Uri.parse(web.url ?: ONLINE))
+            }
+            true
+        }
+        menu.show()
+    }
+
+    // ---- words from other apps ----------------------------------------------- //
+
+    /** The path to open for a word or a link from another app, or null. */
+    private fun pathFor(intent: Intent?): String? {
+        val text = when (intent?.action) {
+            Intent.ACTION_PROCESS_TEXT -> intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()
+            Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
+            Intent.ACTION_VIEW -> {
+                // A link to the site opens in the source chosen, whichever it is.
+                val uri = intent.data ?: return null
+                if (uri.scheme != "https" || !uri.host.equals(HOST, ignoreCase = true)) return null
+                return "/" + (uri.encodedQuery?.let { "?$it" } ?: "")
+            }
+            else -> null
+        }
+        val query = text?.trim()?.takeIf { it.isNotEmpty() && it.length <= MAX_QUERY } ?: return null
+        return "/?q=" + URLEncoder.encode(query, "UTF-8")
+    }
+
+    /** Opens PATH now, or as soon as py-words has started. */
+    private fun go(path: String) {
+        val b = base
+        if (b == null) pending = path else load(b + path)
     }
 
     private fun load(url: String) {
@@ -126,7 +227,14 @@ class MainActivity : Activity() {
     }
 
     private fun retry() {
-        load(failedUrl ?: HOME)
+        if (base == null) begin(null) else load(failedUrl ?: (base + "/"))
+    }
+
+    private fun showError(title: String, detail: String, phone: Boolean) {
+        findViewById<TextView>(R.id.error_title).text = title
+        findViewById<TextView>(R.id.error_detail).text = detail
+        findViewById<View>(R.id.use_phone).visibility = if (phone) View.VISIBLE else View.GONE
+        error.visibility = View.VISIBLE
     }
 
     // ---- el WebView ---------------------------------------------------------- //
@@ -134,7 +242,7 @@ class MainActivity : Activity() {
     @SuppressLint("SetJavaScriptEnabled")
     private fun setUpWebView() {
         web.settings.apply {
-            javaScriptEnabled = true          // the site's own scripts (with a CSP nonce)
+            javaScriptEnabled = true          // py-words' own scripts (with a CSP nonce)
             domStorageEnabled = true
             builtInZoomControls = true
             displayZoomControls = false
@@ -146,8 +254,8 @@ class MainActivity : Activity() {
 
         web.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-                // Las páginas del sitio se quedan en la app; los demás enlaces
-                // (GitHub, la página del autor, el correo) van a otra app.
+                // Las páginas de py-words se quedan en la app; los demás
+                // enlaces (GitHub, la página del autor, Logeion) van a otra app.
                 if (isOurs(request.url)) return false
                 openOutside(request.url)
                 return true
@@ -161,6 +269,12 @@ class MainActivity : Activity() {
             override fun onPageFinished(view: WebView, url: String) {
                 progress.visibility = View.GONE
                 if (!failed) error.visibility = View.GONE
+                if (forgetHistory) {
+                    // Volver no debe saltar a la otra fuente.
+                    forgetHistory = false
+                    web.clearHistory()
+                    updateBack()
+                }
             }
 
             override fun onReceivedError(view: WebView, request: WebResourceRequest, err: WebResourceError) {
@@ -168,7 +282,11 @@ class MainActivity : Activity() {
                 if (!request.isForMainFrame) return
                 failed = true
                 failedUrl = request.url.toString()
-                error.visibility = View.VISIBLE
+                if (source == Source.ONLINE) {
+                    showError(getString(R.string.network_error), getString(R.string.network_error_detail), phone = true)
+                } else {
+                    showError(getString(R.string.phone_error), err.description.toString(), phone = false)
+                }
             }
 
             override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
@@ -183,13 +301,15 @@ class MainActivity : Activity() {
             }
         }
 
-        // El sitio no ofrece descargas; si alguna vez lo hace, que las haga
+        // py-words no ofrece descargas; si alguna vez lo hace, que las haga
         // el navegador.
         web.setDownloadListener { url, _, _, _, _ -> openOutside(Uri.parse(url)) }
     }
 
-    private fun isOurs(uri: Uri): Boolean =
-        uri.scheme == "https" && uri.host.equals(HOST, ignoreCase = true)
+    private fun isOurs(uri: Uri): Boolean {
+        val b = base ?: return false
+        return "${uri.scheme}://${uri.authority}".equals(b, ignoreCase = true)
+    }
 
     private fun openOutside(uri: Uri) {
         try {
@@ -235,8 +355,14 @@ class MainActivity : Activity() {
 
     companion object {
         const val HOST = "py-words.uniandes.edu.co"
-        const val HOME = "https://$HOST/"
+        const val ONLINE = "https://$HOST"
         // Un texto más largo no es una búsqueda sino un párrafo pegado por error.
         const val MAX_QUERY = 500
+        private const val PREF_SOURCE = "source"
+        private const val STATE_BASE = "base"
+        private const val MENU_ONLINE = 1
+        private const val MENU_PHONE = 2
+        private const val MENU_RELOAD = 3
+        private const val MENU_BROWSER = 4
     }
 }

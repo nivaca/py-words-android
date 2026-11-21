@@ -2,65 +2,98 @@
 
 *[Leer en español](README.es.md)* · [Changelog](CHANGELOG.md)
 
-py-words for Android is a small Android app for the web version of
+py-words for Android is an Android app for
 [py-words](https://github.com/nivaca/py-words), the Latin-English-Latin and
-Latin-Spanish-Latin dictionary with inflectional morphology, which runs at
-<https://py-words.uniandes.edu.co>. The app is only a frontend: it shows that site in a
-window of its own, and every search, result and setting comes from the site. It has no
-copy of the dictionary and does not work without the Internet.
+Latin-Spanish-Latin dictionary with inflectional morphology. It can show py-words from one
+of two sources, and a menu at the top changes from one to the other:
+
+- **Online**: the site <https://py-words.uniandes.edu.co>, which needs the Internet.
+- **On this phone**: py-words itself, which runs inside the app, without the Internet. The
+  app carries a copy of the program and its data (now py-words 3.28) and a Python 3.13 to
+  run it.
+
+Both show the same page, with the same searches, results and settings; the app is only a
+window for it. A new install starts online.
 
 I am Nicolas Vaughan (<nicolasvaughan@proton.me>), and I wrote it in 2026.
 
 ## What it does
 
-- The site, full screen, in light or dark mode as the system says (the site follows
-  the colour scheme of the device).
-- Pages of the site open in the app; links to anything else (GitHub, the author's page)
-  open in the browser.
-- Back returns to the previous page of the site, and closes the app when there is none.
-- The settings of the site (the language of the meanings, fuzzy search, the earlier
-  searches) are kept in its cookie, so they stay from one use to the next.
+- py-words full screen, under a thin bar that says where it comes from, in light or dark
+  mode as the system says.
+- The menu (⋮): **Online** or **On this phone**, **Reload**, and, online, **Open in the
+  browser**. Changing the source keeps the search on the screen.
+- On this phone, the dictionary loads in a few seconds the first time (it is unpacked and
+  its cache is made), and faster afterwards. Only Logeion, a source that py-words can
+  search, still needs the Internet.
+- Pages of py-words open in the app; links to anything else open in the browser.
+- Back returns to the previous page, and closes the app when there is none.
+- The settings of py-words (the language of the meanings, fuzzy search, the earlier
+  searches) are kept in its cookie, so they stay from one use to the next. Each source has
+  its own.
 - From any app: select a Latin word or line and choose **Look up in py-words** in the
   menu of the selection, or share a text with the app. Links to
-  `py-words.uniandes.edu.co` can open in it too.
-- When the site cannot be reached, a short message and a **Try again** button, in
-  English or Spanish.
+  `py-words.uniandes.edu.co` can open in it too, in the source chosen.
+- When the site cannot be reached, a short message with **Try again** and **Use it on
+  this phone**. English and Spanish interface.
 
 ## Requirements
 
-Android 10 (API 29) or newer, and an Internet connection.
+Android 10 (API 29) or newer, on a 64-bit device (Python 3.13 runs only there). The
+Internet only for the online source.
 
 ## Building
 
-You need a JDK (17 or newer) and the Android SDK with platform 36. Write the path of the
-SDK in `local.properties` (`sdk.dir=/home/me/Android/Sdk`), or set `ANDROID_HOME`, and then:
+py-words is a git submodule, in `py-words/`, fixed at a tag of its repository. Clone with
+it:
+
+```sh
+git clone --recurse-submodules https://github.com/nivaca/py-words-android.git
+```
+
+(or run `git submodule update --init` in a clone made without it). You need a JDK (17 or
+newer), the Android SDK with platform 36, and Python 3.13 on the `PATH` as `python3.13`,
+which the build uses to compile py-words to bytecode. Write the path of the SDK in
+`local.properties` (`sdk.dir=/home/me/Android/Sdk`), or set `ANDROID_HOME`, and then:
 
 ```sh
 ./gradlew assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-The Gradle wrapper downloads the right Gradle by itself. The project uses only the
-Android framework (no AndroidX, no other libraries).
+The Gradle wrapper downloads the right Gradle, and the Chaquopy plugin downloads the
+Python for Android. Besides Chaquopy, the project uses only the Android framework (no
+AndroidX, no other libraries).
+
+To put a newer py-words in the app, move the submodule to its tag and build again:
+
+```sh
+cd py-words && git fetch --tags && git checkout v3.29 && cd ..
+git add py-words
+```
 
 ## Releases and signing
 
-`./gradlew assembleRelease` makes the release APK, shrunk with R8 (about 57 KB). It is
-signed only if the file `keystore.properties` exists in the root of the project, with the
-keys `storeFile`, `storePassword`, `keyAlias` and `keyPassword`; the key and that file are
-not in git. A signed APK is copied to `dist/py-words-android-VERSION.apk`, replacing the
-older ones there. Without the file, the release APK comes out unsigned and nothing is
-copied.
+`./gradlew assembleRelease` makes the release APK, shrunk with R8 (about 42 MB, nearly all
+of it Python and the dictionary). It is signed only if the file `keystore.properties`
+exists in the root of the project, with the keys `storeFile`, `storePassword`, `keyAlias`
+and `keyPassword`; the key and that file are not in git. A signed APK is copied to
+`dist/py-words-android-VERSION.apk`, replacing the older ones there. Without the file, the
+release APK comes out unsigned and nothing is copied.
 
 ## How it works
 
-All the code is in `app/src/main/java/io/github/nivaca/pywords/MainActivity.kt`: one
-activity with a WebView. It keeps the pages of `py-words.uniandes.edu.co` inside and sends
-other links out, saves the cookie when the app goes to the background, shows a progress
-bar and the error screen, and turns a word from another app into `/?q=WORD`.
-`docs/DESCRIPTION.md` tells how it was made.
+`MainActivity.kt` is the only screen: a WebView, the bar with the menu, and the screens for
+loading and for errors. Online, it opens `https://py-words.uniandes.edu.co`. On this phone,
+`LocalServer.kt` starts Python with [Chaquopy](https://chaquo.com/chaquopy/), and in it
+`app/src/main/python/pywords_android.py` runs `public_app()` from py-words' `words_web.py`
+(the same application as the site) on `127.0.0.1`, at a free port; the WebView opens that.
+The build copies from the submodule only what this needs: the Python modules, `data/` and
+two icons. `docs/DESCRIPTION.md` tells how it was made.
 
 ## License
 
 py-words for Android is free software, under the GNU General Public License, version 3 or
-later (`GPL-3.0-or-later`); see [LICENSE](LICENSE). py-words itself has the same license.
+later (`GPL-3.0-or-later`); see [LICENSE](LICENSE). py-words, which the app carries, has the
+same license; its data has the licenses listed in its own documentation. Chaquopy is under
+the MIT License, and Python under the Python Software Foundation License.
