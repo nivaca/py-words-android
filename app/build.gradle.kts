@@ -21,13 +21,16 @@ android {
         applicationId = "io.github.nivaca.pywords"
         minSdk = 29
         targetSdk = 36
-        versionCode = 3
-        versionName = "2.1"
+        versionCode = 4
+        versionName = "2.2"
 
-        // Python 3.12 and later run only on 64-bit devices; x86_64 is for
-        // the emulator.
+        // Python 3.12 y posteriores solo corren en dispositivos de 64 bits.
+        // Desde la 2.2, solo ARM (arm64-v8a): en el emulador x86_64 la
+        // app se cerraba al arrancar Python, y el APK para F-Droid no debe
+        // ofrecerse a dispositivos x86_64 (los Chromebook, sobre todo)
+        // mientras eso no se aclare.
         ndk {
-            abiFilters += listOf("arm64-v8a", "x86_64")
+            abiFilters += listOf("arm64-v8a")
         }
     }
 

@@ -1,0 +1,1 @@
+The APK is now only for 64-bit ARM devices (arm64), and about 28 MB instead of 42. A store listing for F-Droid.

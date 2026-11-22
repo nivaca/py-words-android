@@ -9,8 +9,8 @@ the site <https://py-words.uniandes.edu.co> or from a copy of the program that r
 the app, without the Internet. Nicolas Vaughan made it in November 2026. It came from the
 Wiktionary Reader app, made the same month, which gave it its build files and its manner of
 working. Version 1.0 only showed the site; version 2.0 added the copy on the phone, and
-2.1, the current one, made it the default source. Here I explain how it was made, in five
-stages.
+2.1 made it the default source; 2.2, the current one, is only for ARM devices and has a
+listing for F-Droid. Here I explain how it was made, in six stages.
 
 py-words for Android is free software, under the GNU General Public License, version 3 or
 later. It uses the Android framework, the Kotlin standard library (under the Apache License
@@ -123,6 +123,30 @@ closes the app.
 The price is size: the APK went from 57 KB to about 42 MB, nearly all of it the Python
 runtime and the dictionary.
 
+6. Only ARM, and F-Droid
+------------------------
+
+For F-Droid, which builds each app from its source on its own servers,
+the app got a store listing in `fastlane/metadata/android/` (English and
+Spanish) and a recipe in `fdroid/`.  Before sending it, I ran F-Droid's
+own build of 2.1 in its build container.  Two things came out of that.
+F-Droid's scanner stopped at `py-words/TAGS`, an Emacs tags file of the
+submodule, which it takes for a binary because of its form feeds; the
+recipe deletes it before building.  And Chaquopy found in that container
+the `python3.13` it needs to compile py-words to bytecode, so the build
+went through.
+
+While taking screenshots for the store, the app closed every time it
+started Python on the emulator (x86_64, Android 16), with a native error
+("pthread_mutex_lock called on a destroyed mutex"); on the phone, an
+ARM device, it works.  The emulator had run 2.0 well, so the cause is
+not clear.  But the APK that F-Droid makes would be offered to x86_64
+devices too, Chromebooks above all, so version 2.2 carries Python only
+for `arm64-v8a`, the processor of nearly every Android phone and tablet.
+The APK went down from about 42 MB to 28, and the release APK no
+longer runs on the x86_64 emulator.  The build also stopped setting
+`android.useAndroidX=false`, which the Android plugin now warns about.
+
 Testing
 -------
 
@@ -143,7 +167,11 @@ the phone, whose first start took about 12 seconds; a later start with airplane 
 (*arma virumque cano*), which took under 4 seconds and gave the whole line without the
 Internet; the change back online with the search kept (*lupus*), and the turn of the
 screen to landscape. Android lint reports no errors, and the Kotlin compiler no warnings.
+For 2.2, I ran F-Droid's build in its own container
+(`fdroidserver:buildserver-trixie`), with the same steps as the checks
+of F-Droid's repository, and checked that the APK carries only the
+libraries for `arm64-v8a`.
 
 The project has 20 files under `app/` besides the build output: two Kotlin files of 414
 lines, one Python file of 45, 270 lines of XML in the manifest, the resources and the
-layout, and five PNG images of the icon. The build file of the app has 114 lines.
+layout, and five PNG images of the icon. The build file of the app has 129 lines.

@@ -4,6 +4,17 @@ Los cambios de py-words para Android. El código está en
 [GitHub](https://github.com/nivaca/py-words-android) y en
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
+## 2.2 — 2026-11-21
+
+- El APK es ahora solo para dispositivos ARM de 64 bits (`arm64-v8a`),
+  los teléfonos y tabletas que usan Android: ya no lleva Python para
+  x86_64, donde la app se cerraba al arrancar Python (visto en el
+  emulador). Pesa unos 28 MB en lugar de 42.
+- Una ficha y una receta de compilación para F-Droid, en
+  `fastlane/metadata/android/` y `fdroid/`.
+- La compilación ya no fija `android.useAndroidX=false`, de lo que el
+  plugin de Android ahora advierte.
+
 ## 2.1 — 2026-11-21
 
 - El teléfono es ahora la fuente por omisión: la app empieza con py-words

@@ -41,8 +41,9 @@ Soy Nicolás Vaughan (<nicolasvaughan@proton.me>) y la escribí en 2026.
 
 ## Requisitos
 
-Android 10 (API 29) o posterior, en un dispositivo de 64 bits (Python 3.13 solo corre en
-ellos). Internet, solo para la fuente en línea.
+Android 10 (API 29) o posterior, en un dispositivo ARM de 64 bits (`arm64-v8a`), como casi
+todos los teléfonos y tabletas con Android: Python 3.13 solo corre en dispositivos de 64
+bits, y desde la 2.2 la app lo lleva solo para ARM. Internet, solo para la fuente en línea.
 
 ## Compilación
 
@@ -77,7 +78,7 @@ git add py-words
 
 ## Versiones y firma
 
-`./gradlew assembleRelease` produce el APK release, reducido con R8 (unos 42 MB, casi todo
+`./gradlew assembleRelease` produce el APK release, reducido con R8 (unos 28 MB, casi todo
 Python y el diccionario). Solo se firma si existe en la raíz del proyecto el archivo
 `keystore.properties`, con las claves `storeFile`, `storePassword`, `keyAlias` y
 `keyPassword`; ni la clave ni ese archivo están en git. El APK firmado se copia a

@@ -1,0 +1,1 @@
+El APK es ahora solo para dispositivos ARM de 64 bits (arm64), y pesa unos 28 MB en lugar de 42. Una ficha para F-Droid.

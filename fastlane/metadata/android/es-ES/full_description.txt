@@ -16,4 +16,4 @@
 <li>Solo Logeion, una fuente en línea que py-words también puede consultar, necesita internet en el teléfono.</li>
 </ul>
 
-<p>Necesita un dispositivo de 64 bits (arm64 o x86_64).</p>
+<p>Necesita un dispositivo ARM de 64 bits (arm64), como casi todos los teléfonos y tabletas con Android.</p>
