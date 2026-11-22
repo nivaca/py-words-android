@@ -1,6 +1,6 @@
 Categories:
-  - Translation & Dictionary
   - Science & Education
+  - Translation & Dictionary
 License: GPL-3.0-or-later
 AuthorName: Nicolas Vaughan
 AuthorEmail: nicolasvaughan@proton.me
@@ -16,13 +16,13 @@ Repo: https://github.com/nivaca/py-words-android.git
 Builds:
   - versionName: '2.2'
     versionCode: 4
-    commit: v2.2
+    commit: 47ca0c9d94b213a426a724f5c2817c2d0fc8d2fa
     subdir: app
     submodules: true
-    rm:
-      - py-words/TAGS
     gradle:
       - yes
+    rm:
+      - py-words/TAGS
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
