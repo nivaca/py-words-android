@@ -96,7 +96,7 @@ gpg --verify py-words-android-VERSION.apk.asc py-words-android-VERSION.apk
 
 ## F-Droid
 
-The description, the icon and the notes of each version for F-Droid are in
+The description, the icon, four screenshots and the notes of each version for F-Droid are in
 `fastlane/metadata/android/` (in English and Spanish), where F-Droid looks for them. The
 build recipe for the F-Droid repository is `fdroid/io.github.nivaca.pywords.yml`: it builds
 the tag `vVERSION` from the folder `app`, with the submodule, and finds new versions by

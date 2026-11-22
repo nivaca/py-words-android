@@ -170,7 +170,10 @@ screen to landscape. Android lint reports no errors, and the Kotlin compiler no 
 For 2.2, I ran F-Droid's build in its own container
 (`fdroidserver:buildserver-trixie`), with the same steps as the checks
 of F-Droid's repository, and checked that the APK carries only the
-libraries for `arm64-v8a`.
+libraries for `arm64-v8a`.  Then I installed 2.2 on the phone over 2.1:
+it started, looked up *amicorum* and *arma virumque cano* with Logeion,
+and *friend* from English to Latin on the phone; those searches and the
+menu of sources are the four screenshots of the store.
 
 The project has 20 files under `app/` besides the build output: two Kotlin files of 414
 lines, one Python file of 45, 270 lines of XML in the manifest, the resources and the
