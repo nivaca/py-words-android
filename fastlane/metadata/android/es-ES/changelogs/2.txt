@@ -1,0 +1,1 @@
+py-words puede correr ahora en el teléfono, sin internet: la app lleva py-words 3.28 y un Python 3.13 para ejecutarlo. Un menú cambia entre En línea y En este teléfono.

@@ -1,0 +1,19 @@
+<p>py-words es un diccionario latín-inglés-latín y latín-español-latín con morfología flexiva: se le da una forma latina y dice qué puede ser (caso, número, tiempo, persona…) y qué significa la palabra; se le da una palabra inglesa o española y encuentra las latinas. Parte de WORDS, de William Whitaker.</p>
+
+<p>Esta app muestra py-words desde una de dos fuentes, y un menú arriba cambia de una a otra:</p>
+
+<ul>
+<li><b>En este teléfono</b>: py-words mismo corre dentro de la app, sin internet. La app lleva el programa, sus datos y un Python para ejecutarlo. Es la fuente por omisión.</li>
+<li><b>En línea</b>: el sitio py-words.uniandes.edu.co.</li>
+</ul>
+
+<p>Las dos muestran la misma página, con las mismas búsquedas, resultados y ajustes.</p>
+
+<ul>
+<li>Desde cualquier app: se selecciona una palabra o una línea latina y se elige <i>Buscar en py-words</i>, o se comparte un texto con la app.</li>
+<li>Atrás vuelve a la página anterior; los enlaces a otros sitios se abren en el navegador.</li>
+<li>Modo claro y oscuro, según el sistema; interfaz en inglés y en español.</li>
+<li>Solo Logeion, una fuente en línea que py-words también puede consultar, necesita internet en el teléfono.</li>
+</ul>
+
+<p>Necesita un dispositivo de 64 bits (arm64 o x86_64).</p>

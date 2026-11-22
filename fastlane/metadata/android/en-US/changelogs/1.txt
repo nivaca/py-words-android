@@ -1,0 +1,1 @@
+First version: the web version of py-words full screen, in light or dark mode; lookup from other apps.

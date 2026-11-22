@@ -1,0 +1,30 @@
+Categories:
+  - Translation & Dictionary
+  - Science & Education
+License: GPL-3.0-or-later
+AuthorName: Nicolas Vaughan
+AuthorEmail: nicolasvaughan@proton.me
+SourceCode: https://github.com/nivaca/py-words-android
+IssueTracker: https://github.com/nivaca/py-words-android/issues
+Changelog: https://github.com/nivaca/py-words-android/blob/HEAD/CHANGELOG.md
+
+AutoName: py-words
+
+RepoType: git
+Repo: https://github.com/nivaca/py-words-android.git
+
+Builds:
+  - versionName: '2.1'
+    versionCode: 3
+    commit: v2.1
+    subdir: app
+    submodules: true
+    rm:
+      - py-words/TAGS
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '2.1'
+CurrentVersionCode: 3

@@ -96,6 +96,16 @@ gpg --import py-words-signing-key.asc
 gpg --verify py-words-android-VERSIÓN.apk.asc py-words-android-VERSIÓN.apk
 ```
 
+## F-Droid
+
+La descripción, el icono y las notas de cada versión para F-Droid están en
+`fastlane/metadata/android/` (en inglés y en español), donde F-Droid los busca. La receta de
+compilación para el repositorio de F-Droid es `fdroid/io.github.nivaca.pywords.yml`: compila
+la etiqueta `vVERSIÓN` desde la carpeta `app`, con el submódulo, y encuentra las versiones
+nuevas por sus etiquetas. Antes de compilar borra `py-words/TAGS` (un archivo de etiquetas
+de Emacs), porque el analizador de F-Droid lo toma por un binario. F-Droid firma las apps con
+su propia clave, así que su APK y el de las versiones publicadas aquí no se actualizan entre sí.
+
 ## Cómo funciona
 
 `MainActivity.kt` es la única pantalla: un WebView, la barra con el menú y las pantallas de
