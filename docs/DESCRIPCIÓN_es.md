@@ -1,4 +1,4 @@
-# py-words para Android 2.0: descripción
+# py-words para Android 2.1: descripción
 
 *[Read in English](DESCRIPTION.md)*
 
@@ -8,7 +8,7 @@ py-words para Android es una app de Android para py-words, el diccionario latín
 
 La versión 1.0 respondía a un requisito simple: una app que sirviera de entrada al sitio, sin copia del diccionario. De ahí se siguieron los demás, casi todos tomados de Wiktionary Reader, la otra app del autor. Debía ocupar la pantalla entera y respetar el modo oscuro del sistema; mantener dentro las páginas de py-words y abrir fuera los demás enlaces; volver atrás por las páginas visitadas; conservar los ajustes de una vez a otra, y poder consultarse desde cualquier app con la palabra seleccionada. Cuando no hay conexión, tenía que decirlo con claridad y ofrecer un segundo intento.
 
-La 2.0 vino de una pregunta: si la app podía correr py-words desde su repositorio de GitHub en lugar del sitio. La respuesta fue llevar el programa dentro de la app y dejar elegir la fuente. Se pidió que las dos convivieran, con un cambio sencillo entre ellas, y que la página fuera la misma en ambas.
+La 2.0 vino de una pregunta: si la app podía correr py-words desde su repositorio de GitHub en lugar del sitio. La respuesta fue llevar el programa dentro de la app y dejar elegir la fuente. Se pidió que las dos convivieran, con un cambio sencillo entre ellas, y que la página fuera la misma en ambas. En la 2.1, la fuente del teléfono pasó a ser la de omisión, porque funciona en cualquier parte y lleva el py-words más nuevo.
 
 ## Diseño
 
@@ -16,7 +16,7 @@ Hay una pantalla, `MainActivity.kt`, y un objeto, `LocalServer.kt`. La vista tie
 
 La decisión principal fue no hacer nada que py-words ya haga. Su página se genera en el servidor, con formularios corrientes (`GET /?q=…` para buscar, `POST` para los ajustes); guarda los ajustes y las búsquedas anteriores en una galleta, y tiene su propia versión oscura bajo `prefers-color-scheme: dark`. Para la fuente del teléfono se siguió la misma idea: en vez de escribir otra interfaz, la app corre la aplicación WSGI del sitio, `public_app()` de `words_web.py`, en `127.0.0.1`, y el WebView la abre como abriría el sitio. Esa aplicación guarda todo en las galletas de cada visitante y nada en el servidor, de modo que en el teléfono tampoco escribe más que la caché del diccionario.
 
-py-words entra en el proyecto como submódulo de git (`py-words/`), fijado en una etiqueta de su repositorio, hoy `v3.28`. La app guarda en sus preferencias solo la fuente elegida; una instalación nueva empieza en línea.
+py-words entra en el proyecto como submódulo de git (`py-words/`), fijado en una etiqueta de su repositorio, hoy `v3.28`. La app guarda en sus preferencias solo la fuente elegida; si nadie eligió, empieza en el teléfono (en la 2.0 empezaba en línea).
 
 Fuera de Chaquopy, que trae Python, la app usa solo el framework de Android, sin AndroidX, igual que Wiktionary Reader, de la que hereda los archivos de Gradle, el tema y el manejo de las barras del sistema.
 
@@ -58,4 +58,4 @@ Funciona en Android 10 (API 29) o posterior, en teléfonos y tabletas de 64 bits
 
 Fue desarrollada en Fedora Linux, con OpenJDK 25, el SDK de Android (plataforma 36, build-tools 36.1), Gradle 9.8 con el Android Gradle Plugin 9.5, que trae Kotlin integrado, y Chaquopy 17.2. El código está en GitHub (https://github.com/nivaca/py-words-android) y en Codeberg (https://codeberg.org/nivaca/py-words-android), donde cada versión lleva una etiqueta `vVERSIÓN` y su APK firmado; el de py-words, en https://github.com/nivaca/py-words.
 
-Para compilarla se clona con `git clone --recurse-submodules` (o se corre `git submodule update --init`), y hacen falta un JDK 17 o posterior, el SDK de Android, cuya ruta va en `local.properties` (`sdk.dir=…`) o en `ANDROID_HOME`, y `python3.13` en el `PATH`. `./gradlew assembleDebug` produce `app/build/outputs/apk/debug/app-debug.apk`, que se instala con `adb install -r`. `./gradlew assembleRelease` produce el APK release, firmado si existe `keystore.properties` (fuera de git) y copiado entonces a `dist/py-words-android-VERSIÓN.apk`. Para llevar un py-words más nuevo se mueve el submódulo a su etiqueta. La fuente elegida vive en las preferencias de la app (`settings.xml`); los ajustes de py-words, en sus galletas, y la caché del diccionario, en la carpeta de caché de la app.
+Para compilarla se clona con `git clone --recurse-submodules` (o se corre `git submodule update --init`), y hacen falta un JDK 17 o posterior, el SDK de Android, cuya ruta va en `local.properties` (`sdk.dir=…`) o en `ANDROID_HOME`, y `python3.13` en el `PATH`. `./gradlew assembleDebug` produce `app/build/outputs/apk/debug/app-debug.apk`, que se instala con `adb install -r`. `./gradlew assembleRelease` produce el APK release, firmado si existe `keystore.properties` (fuera de git) y copiado entonces a `dist/py-words-android-VERSIÓN.apk`; si ese archivo nombra además una clave de gpg (`gpgKey`), el APK lleva al lado su firma OpenPGP (`.apk.asc`). Desde la 2.1, las versiones publicadas se firman así con la clave que firma los paquetes de py-words, cuya clave pública está en `py-words-signing-key.asc`, y sus etiquetas también; las de la 1.0 y la 2.0 recibieron después sus archivos `.asc`. Para llevar un py-words más nuevo se mueve el submódulo a su etiqueta. La fuente elegida vive en las preferencias de la app (`settings.xml`); los ajustes de py-words, en sus galletas, y la caché del diccionario, en la carpeta de caché de la app.

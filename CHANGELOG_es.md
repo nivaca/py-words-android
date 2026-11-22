@@ -4,6 +4,14 @@ Los cambios de py-words para Android. El código está en
 [GitHub](https://github.com/nivaca/py-words-android) y en
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
+## 2.1 — 2026-11-21
+
+- El teléfono es ahora la fuente por omisión: la app empieza con py-words
+  en el teléfono, salvo que se haya elegido En línea en el menú.
+- Las versiones publicadas van firmadas con OpenPGP, con la clave que
+  firma los paquetes de py-words (`py-words-signing-key.asc`): la etiqueta,
+  y el APK en un archivo `.apk.asc` que hace la compilación.
+
 ## 2.0 — 2026-11-21
 
 - py-words puede correr ahora en el teléfono, sin internet: la app lleva

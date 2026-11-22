@@ -21,8 +21,8 @@ android {
         applicationId = "io.github.nivaca.pywords"
         minSdk = 29
         targetSdk = 36
-        versionCode = 2
-        versionName = "2.0"
+        versionCode = 3
+        versionName = "2.1"
 
         // Python 3.12 and later run only on 64-bit devices; x86_64 is for
         // the emulator.
@@ -98,7 +98,10 @@ tasks.matching { it.name.contains("Python", ignoreCase = true) && it.name != "co
 
 // Al final de cada versión release firmada, el APK se copia también a
 // dist/ como py-words-android-VERSIÓN.apk, en lugar de los anteriores, para
-// que dist/ tenga siempre el más nuevo.  Sin firma no se copia nada.
+// que dist/ tenga siempre el más nuevo.  Sin firma no se copia nada.  Si
+// keystore.properties nombra además una clave de gpg (gpgKey, la misma que
+// firma los paquetes de py-words), el APK lleva al lado su firma OpenPGP,
+// py-words-android-VERSIÓN.apk.asc.
 val distApk = tasks.register("distApk") {
     doLast {
         val version = android.defaultConfig.versionName
@@ -106,9 +109,18 @@ val distApk = tasks.register("distApk") {
         if (!apk.isFile) return@doLast
         val dist = rootProject.file("dist")
         dist.mkdirs()
-        dist.listFiles { f -> f.name.startsWith("py-words-android-") && f.name.endsWith(".apk") }?.forEach { it.delete() }
-        apk.copyTo(File(dist, "py-words-android-$version.apk"), overwrite = true)
-        println("dist/py-words-android-$version.apk")
+        dist.listFiles { f -> f.name.startsWith("py-words-android-") &&
+            (f.name.endsWith(".apk") || f.name.endsWith(".apk.asc")) }?.forEach { it.delete() }
+        val out = File(dist, "py-words-android-$version.apk")
+        apk.copyTo(out, overwrite = true)
+        println("dist/${out.name}")
+        val gpgKey = keystore.getProperty("gpgKey") ?: return@doLast
+        // gpg pide la frase de la clave, si hace falta, con su propio diálogo.
+        val gpg = ProcessBuilder("gpg", "--batch", "--yes", "--local-user", gpgKey,
+            "--armor", "--detach-sign", "--output", "${out.path}.asc", out.path)
+            .inheritIO().start()
+        check(gpg.waitFor() == 0) { "gpg could not sign ${out.name}" }
+        println("dist/${out.name}.asc")
     }
 }
 tasks.matching { it.name == "assembleRelease" }.configureEach { finalizedBy(distApk) }

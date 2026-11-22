@@ -8,8 +8,9 @@ Latin-Spanish-Latin dictionary with inflectional morphology. It shows py-words e
 the site <https://py-words.uniandes.edu.co> or from a copy of the program that runs inside
 the app, without the Internet. Nicolas Vaughan made it in November 2026. It came from the
 Wiktionary Reader app, made the same month, which gave it its build files and its manner of
-working. Version 1.0 only showed the site; version 2.0, the current one, added the copy on
-the phone. Here I explain how it was made, in five stages.
+working. Version 1.0 only showed the site; version 2.0 added the copy on the phone, and
+2.1, the current one, made it the default source. Here I explain how it was made, in five
+stages.
 
 py-words for Android is free software, under the GNU General Public License, version 3 or
 later. It uses the Android framework, the Kotlin standard library (under the Apache License
@@ -110,7 +111,12 @@ The screen gained a thin bar at the top, with the source of py-words (and, on th
 its version) and a menu to change it. Changing the source keeps the search on the screen,
 and forgets the history, so that Back does not jump from one source to the other. When the
 site cannot be reached, the error screen offers the copy on the phone. The source chosen
-is kept in the preferences of the app; a new install starts online. The state of the
+is kept in the preferences of the app. In 2.0 a new install started online; after trying
+it on a phone, I made the phone the default in 2.1, since it works anywhere and is the
+newer py-words, and only those who choose Online keep it. From 2.1 on, the releases are also signed with
+OpenPGP, with the key that signs the packages of py-words: the tag, and the APK in an
+`.asc` file that the build makes when `keystore.properties` names the key; the 1.0 and 2.0
+releases got their `.asc` files afterwards. The state of the
 WebView is restored only for the same server, since the port changes each time Android
 closes the app.
 

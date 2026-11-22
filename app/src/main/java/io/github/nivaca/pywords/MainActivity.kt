@@ -48,7 +48,7 @@ class MainActivity : Activity() {
 
     private val prefs by lazy { getSharedPreferences("settings", Context.MODE_PRIVATE) }
 
-    private var source = Source.ONLINE
+    private var source = Source.PHONE
     private var base: String? = null        // null while py-words starts on the phone
     private var pending: String? = null     // path and query to open once it has
     private var failedUrl: String? = null    // the page that could not be loaded
@@ -81,7 +81,9 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.use_phone).setOnClickListener { switchTo(Source.PHONE) }
         findViewById<ImageButton>(R.id.menu).setOnClickListener { showMenu(it) }
 
-        source = if (prefs.getString(PREF_SOURCE, null) == "phone") Source.PHONE else Source.ONLINE
+        // Por omisión, el teléfono: funciona sin internet.  Solo quien eligió
+        // la fuente en línea la conserva.
+        source = if (prefs.getString(PREF_SOURCE, null) == "online") Source.ONLINE else Source.PHONE
         // Tras girar la pantalla, la misma página y el mismo historial; si
         // no, lo que pida otra app, o la portada.
         if (savedInstanceState == null) pending = pathFor(intent)

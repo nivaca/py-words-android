@@ -13,7 +13,7 @@ menú arriba cambia de una a otra:
   correrlo.
 
 Las dos muestran la misma página, con las mismas búsquedas, resultados y ajustes; la app es
-solo una ventana para ella. Una instalación nueva empieza en línea.
+solo una ventana para ella. La app empieza en el teléfono, salvo que se haya elegido En línea.
 
 Soy Nicolás Vaughan (<nicolasvaughan@proton.me>) y la escribí en 2026.
 
@@ -83,6 +83,18 @@ Python y el diccionario). Solo se firma si existe en la raíz del proyecto el ar
 `keyPassword`; ni la clave ni ese archivo están en git. El APK firmado se copia a
 `dist/py-words-android-VERSIÓN.apk`, en lugar de los anteriores. Sin ese archivo, el APK
 release sale sin firmar y no se copia nada.
+
+Si `keystore.properties` tiene además `gpgKey`, la huella de una clave de gpg, la
+compilación firma también el APK con ella, en `dist/py-words-android-VERSIÓN.apk.asc`. Las
+versiones publicadas se firman con la clave que firma los paquetes de py-words, cuya clave
+pública es [py-words-signing-key.asc](py-words-signing-key.asc) (huella
+`8187 0643 CA22 1AF9 0C30  554E BE68 32CD 3599 4948`); sus etiquetas también van firmadas
+con ella. Para comprobar una descarga:
+
+```sh
+gpg --import py-words-signing-key.asc
+gpg --verify py-words-android-VERSIÓN.apk.asc py-words-android-VERSIÓN.apk
+```
 
 ## Cómo funciona
 

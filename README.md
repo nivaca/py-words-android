@@ -13,7 +13,7 @@ of two sources, and a menu at the top changes from one to the other:
   run it.
 
 Both show the same page, with the same searches, results and settings; the app is only a
-window for it. A new install starts online.
+window for it. The app starts on the phone, unless you have chosen Online.
 
 I am Nicolas Vaughan (<nicolasvaughan@proton.me>), and I wrote it in 2026.
 
@@ -80,6 +80,18 @@ exists in the root of the project, with the keys `storeFile`, `storePassword`, `
 and `keyPassword`; the key and that file are not in git. A signed APK is copied to
 `dist/py-words-android-VERSION.apk`, replacing the older ones there. Without the file, the
 release APK comes out unsigned and nothing is copied.
+
+If `keystore.properties` also has `gpgKey`, the fingerprint of a gpg key, the build signs
+the APK with it as well, in `dist/py-words-android-VERSION.apk.asc`. The releases are
+signed with the key that signs the packages of py-words, whose public key is
+[py-words-signing-key.asc](py-words-signing-key.asc) (fingerprint
+`8187 0643 CA22 1AF9 0C30  554E BE68 32CD 3599 4948`); their tags are signed with it too.
+To check a download:
+
+```sh
+gpg --import py-words-signing-key.asc
+gpg --verify py-words-android-VERSION.apk.asc py-words-android-VERSION.apk
+```
 
 ## How it works
 
