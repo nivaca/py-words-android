@@ -68,13 +68,31 @@ El *wrapper* de Gradle descarga la versión correcta de Gradle, y el plugin de C
 Python para Android. Fuera de Chaquopy, el proyecto usa solo el framework de Android (sin
 AndroidX ni otras bibliotecas).
 
-Para poner en la app un py-words más nuevo, se mueve el submódulo a su etiqueta y se compila
-de nuevo:
+## Seguir a py-words
+
+La app lleva una copia fija de py-words, así que cada py-words nuevo pide una versión nueva
+de la app. `tools/update-py-words.py` la hace y la publica:
 
 ```sh
-cd py-words && git fetch --tags && git checkout v3.29 && cd ..
-git add py-words
+python3 tools/update-py-words.py [--tag vX.YY] [--only-if-changed] [--dry-run] [--yes]
 ```
+
+Mueve el submódulo a la etiqueta más nueva de py-words (o a la de `--tag`), sube
+`versionCode` y `versionName` (de 2.2 a 2.3), escribe la versión nueva de py-words en los
+README, los registros de cambios y `docs/`, y compila el APK firmado; si la compilación
+falla, deshace esos cambios. Luego confirma (`vVERSIÓN: py-words X.YY`), firma la etiqueta,
+sube `main` y la etiqueta a `origin` (GitHub y Codeberg) y crea la versión en cada forja, con
+el APK, su `.asc` y la clave pública. Las notas salen del registro de cambios, donde lo que
+esté bajo `## Sin publicar` pasa a la entrada nueva. Pregunta antes de cambiar nada;
+`--dry-run` solo dice qué haría, y `--only-if-changed` no hace nada si, de lo que la app
+lleva, solo cambió el número de la versión. Necesita `gh`, `tea`, `gpg`, `main` sin cambios
+por confirmar y las claves de `keystore.properties`. Si se detiene después de confirmar,
+correrlo de nuevo publica lo que falte.
+
+`tools/release.py` de py-words lo corre al final de cada versión de py-words, así que la app
+sigue a py-words sin que nadie tenga que acordarse. En el teléfono,
+[Obtainium](https://github.com/ImranR98/Obtainium) puede seguir las versiones de este
+repositorio e instalar cada APK nuevo sobre el anterior.
 
 ## Versiones y firma
 

@@ -4,6 +4,14 @@ All notable changes to py-words for Android. The source is on
 [GitHub](https://github.com/nivaca/py-words-android) and
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
+## Unreleased
+
+- `tools/update-py-words.py` puts the newest py-words in the app and
+  releases the version of the app that carries it; the release tool of
+  py-words runs it at the end of each release of py-words. The notes of
+  each release say how to get the new versions by themselves with
+  Obtainium.
+
 ## 2.2 — 2026-11-21
 
 - The APK is now only for 64-bit ARM devices (`arm64-v8a`), the phones

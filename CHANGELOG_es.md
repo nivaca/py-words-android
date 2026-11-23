@@ -4,6 +4,13 @@ Los cambios de py-words para Android. El código está en
 [GitHub](https://github.com/nivaca/py-words-android) y en
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
+## Sin publicar
+
+- `tools/update-py-words.py` pone en la app el py-words más nuevo y
+  publica la versión de la app que lo lleva; la herramienta de versiones
+  de py-words lo corre al final de cada versión de py-words. Las notas de
+  cada versión dicen cómo recibir las nuevas solas con Obtainium.
+
 ## 2.2 — 2026-11-21
 
 - El APK es ahora solo para dispositivos ARM de 64 bits (`arm64-v8a`),

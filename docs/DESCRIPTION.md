@@ -9,8 +9,9 @@ the site <https://py-words.uniandes.edu.co> or from a copy of the program that r
 the app, without the Internet. Nicolas Vaughan made it in November 2026. It came from the
 Wiktionary Reader app, made the same month, which gave it its build files and its manner of
 working. Version 1.0 only showed the site; version 2.0 added the copy on the phone, and
-2.1 made it the default source; 2.2, the current one, is only for ARM devices and has a
-listing for F-Droid. Here I explain how it was made, in six stages.
+2.1 made it the default source; 2.2 is only for ARM devices and has a listing for F-Droid.
+From 2.3 on, each release of py-words brings a new version of the app, made by a script.
+Here I explain how it was made, in seven stages.
 
 py-words for Android is free software, under the GNU General Public License, version 3 or
 later. It uses the Android framework, the Kotlin standard library (under the Apache License
@@ -91,7 +92,7 @@ point the WebView at it.
 Python on Android comes from Chaquopy, a Gradle plugin that puts CPython in the APK. Its
 version 17.2 supports the Android plugin 9.5 of the project and Python 3.13, which py-words
 needs for now; Python 3.12 and later run only on 64-bit devices, so the app now asks for
-one. py-words enters the project as a git submodule, `py-words/`, fixed at the tag `v3.28`,
+one. py-words enters the project as a git submodule, `py-words/`, fixed at a tag of its repository (now `v3.28`),
 and a Gradle task copies from it only what the server needs: the Python modules (not the
 window or the terminal, which need tkinter or curses, absent on Android), `data/` and the
 two icons that the page shows. Chaquopy compiles them to bytecode with the `python3.13` of
@@ -147,6 +148,37 @@ The APK went down from about 42 MB to 28, and the release APK no
 longer runs on the x86_64 emulator.  The build also stopped setting
 `android.useAndroidX=false`, which the Android plugin now warns about.
 
+7. Following py-words
+---------------------
+
+py-words 3.29 came out the day after 2.2, and the phone still had 3.28. The app cannot
+update the copy it carries, since the copy is inside the APK: a new py-words means a new
+version of the app. Doing that by hand each time (move the submodule, raise the version,
+write the changelogs, build, sign, tag, release on two forges) is easy to forget, so I wrote
+`tools/update-py-words.py` to do all of it, and made the release tool of py-words run it at
+its end, with the tag just released.
+
+The script finds the newest tag of py-words, moves the submodule to it, raises
+`versionCode` and `versionName`, and writes the new version of py-words in the READMEs, the
+changelogs and these two documents; what I wrote under "Unreleased" in a changelog goes
+into the same entry. Then it builds the signed APK. If the build fails, it undoes its
+changes, so the repository stays as it was. Otherwise it commits, signs the tag, pushes to
+both forges and makes the releases, whose notes come from the changelog. A run that stopped
+after the commit can be repeated, and it publishes what is missing.
+
+I considered building in GitHub Actions instead, so that nothing would depend on my
+computer. But that would put the signing key of the APK, and the OpenPGP key that also
+signs py-words, in the secrets of GitHub, and a leak of them would let anybody publish
+updates that phones accept. The keys stay on the computer where py-words is released,
+which already holds them. A third way, an app that downloads py-words by itself, would need
+no new versions at all; it would also need to check signatures at run time, and a first
+start without the Internet would have nothing to run.
+
+3.29 changed nothing that the app carries except the number of the version. The script
+says so in the changelog, and `--only-if-changed` skips such releases. On the phone,
+Obtainium watches the releases on GitHub and installs each new APK over the old one, since
+all are signed with the same key.
+
 Testing
 -------
 
@@ -175,6 +207,12 @@ it started, looked up *amicorum* and *arma virumque cano* with Logeion,
 and *friend* from English to Latin on the phone; those searches and the
 menu of sources are the four screenshots of the store.
 
+I tried `tools/update-py-words.py` in a clone of the repository, outside the real one:
+with `--dry-run`, for 3.28 to 3.29, with `--only-if-changed` (which stopped, since only
+`version.py` changed), and with an older tag (which it refuses); and the edits themselves,
+whose diff I read, with and without an "Unreleased" section in the changelogs.
+
 The project has 20 files under `app/` besides the build output: two Kotlin files of 414
 lines, one Python file of 45, 270 lines of XML in the manifest, the resources and the
-layout, and five PNG images of the icon. The build file of the app has 129 lines.
+layout, and five PNG images of the icon. The build file of the app has 129 lines, and
+`tools/update-py-words.py`, 475.
