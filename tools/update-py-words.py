@@ -31,12 +31,14 @@ En orden:
    del APK y de SHA256SUMS como lo haría quien los descargue: en un
    GNUPGHOME temporal que solo tiene la clave pública que se publica.  Si
    una no se comprueba, se detiene.  Luego pone la etiqueta firmada
-   vVERSIÓN, la comprueba con git tag --verify y sube main y la etiqueta a
-   origin (que sube a GitHub y a Codeberg);
+   vVERSIÓN, la comprueba con git tag --verify en otro GNUPGHOME temporal
+   con solo esa clave, y sube main y la etiqueta a origin (que sube a
+   GitHub y a Codeberg);
 7. crea la versión en cada forja, con el APK, SHA256SUMS, sus firmas y la
    clave pública.  A una versión ya publicada le añade los archivos que le
-   falten (así recibió la 2.5 su SHA256SUMS), siempre que los que ya tiene
-   sean los mismos que hay en dist/.
+   falten en cualquiera de las dos forjas (así recibió la 2.5 su
+   SHA256SUMS), siempre que los que ya tiene en GitHub sean los mismos que
+   hay en dist/.
 
 Antes del paso 4 muestra lo que va a hacer y pregunta; con --yes no
 pregunta, y con --dry-run solo lo muestra.  Si algo falla después del
@@ -355,6 +357,24 @@ class Update:
         print(f'Signed and verified with {SIGNING_KEY}: '
               f'{os.path.basename(apk)}, {os.path.basename(SUMS)}')
 
+    def verify_tag(self, tag: str):
+        """Stop unless the signature of TAG verifies with only the
+        published public key, as a user would check it."""
+        with tempfile.TemporaryDirectory(prefix='update-py-words-') as home:
+            os.chmod(home, 0o700)
+            env = {'GNUPGHOME': home, 'PATH': '/usr/bin:/bin'}
+            subprocess.run(['gpg', '--batch', '--quiet', '--import',
+                            SIGNING_KEY], cwd=ROOT, env=env, check=True,
+                           capture_output=True)
+            done = subprocess.run(['git', 'tag', '--verify', tag], cwd=ROOT,
+                                  env=env, capture_output=True, text=True)
+            subprocess.run(['gpgconf', '--kill', 'all'], env=env,
+                           capture_output=True)
+        if done.returncode != 0:
+            sys.exit(f'update-py-words: the signature of the tag {tag} does '
+                     f'not verify with {SIGNING_KEY}')
+        print(f'Verified with {SIGNING_KEY}: the tag {tag}')
+
     def notes(self, name: str, new: str, apk: str) -> str:
         with open(os.path.join(ROOT, apk), 'rb') as f:
             sha = hashlib.sha256(f.read()).hexdigest()
@@ -425,9 +445,7 @@ also carries Python (Python Software Foundation License) through Chaquopy \
             run('git', 'tag', '--sign', '--local-user', self.keys['gpgKey'],
                 '--message', f'py-words for Android {name}', tag,
                 capture=False)
-        if not ok('git', 'tag', '--verify', tag):
-            sys.exit(f'update-py-words: the signature of the tag {tag} does '
-                     'not verify')
+        self.verify_tag(tag)
         run('git', 'push', 'origin', BRANCH, capture=False)
         run('git', 'push', 'origin', f'refs/tags/{tag}', capture=False)
         title = f'py-words for Android {name}'
@@ -474,10 +492,20 @@ also carries Python (Python Software Foundation License) through Chaquopy \
         print(f'GitHub: added to {tag}: '
               + ', '.join(os.path.basename(f) for f in missing))
 
+    def codeberg_assets(self, tag: str) -> set | None:
+        """The names of the files of the release TAG on Codeberg, or None
+        if there is no such release."""
+        repo = 'nivaca/py-words-android'
+        listed = run('tea', 'releases', 'ls', '--repo', repo, '--login',
+                     TEA_LOGIN, '--output', 'simple')
+        if not re.search(rf'^{re.escape(tag)}\b', listed, re.MULTILINE):
+            return None
+        return set(re.findall(r'\S+', run(
+            'tea', 'releases', 'assets', 'ls', '--repo', repo, '--login',
+            TEA_LOGIN, '--output', 'simple', tag)))
+
     def add_missing_codeberg(self, tag: str, repo: str, files: list[str]):
-        listed = run('tea', 'releases', 'assets', 'ls', '--repo', repo,
-                     '--login', TEA_LOGIN, '--output', 'simple', tag)
-        names = set(re.findall(r'\S+', listed))
+        names = self.codeberg_assets(tag) or set()
         missing = [f for f in files if os.path.basename(f) not in names]
         if not missing:
             print(f'Codeberg: {tag} is already released')
@@ -514,15 +542,21 @@ also carries Python (Python Software Foundation License) through Chaquopy \
         if ok('gh', 'release', 'view', f'v{name}'):
             have = run('gh', 'release', 'view', f'v{name}', '--json',
                        'assets', '--jq', '.assets[].name').split()
-            if all(os.path.basename(f) in have for f in self.files(name)):
+            # También Codeberg: una subida pudo fallar allí sola.
+            codeberg = self.codeberg_assets(f'v{name}')
+            if codeberg is not None and all(
+                    os.path.basename(f) in have and
+                    os.path.basename(f) in codeberg
+                    for f in self.files(name)):
                 print(f'The app already carries py-words {current[1:]}, and '
                       f'v{name} is released.')
                 return
             if not os.path.isfile(os.path.join(ROOT, self.files(name)[0])):
                 sys.exit(f'update-py-words: v{name} lacks files, and there is '
                          f'no {self.files(name)[0]} to make them from')
-            self.ask(f'v{name} is released without SHA256SUMS: make it, sign '
-                     'it and add it (and any other file missing).')
+            self.ask(f'v{name} is released, but not on both forges with all '
+                     'its files (SHA256SUMS, perhaps): make what is missing, '
+                     'sign it and add it.')
             self.publish(name, current[1:])
             return
         self.ask(f'v{name} (py-words {current[1:]}) is committed but not '
