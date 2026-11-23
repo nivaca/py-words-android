@@ -77,9 +77,15 @@ It moves the submodule to the newest tag of py-words (or to `--tag`), raises `ve
 and `versionName` (2.2 to 2.3), writes the new version of py-words in the READMEs, the
 changelogs and `docs/`, and builds the signed APK; if the build fails, it undoes those
 changes. Then it commits (`vVERSION: py-words X.YY`), signs the tag, pushes `main` and the
-tag to `origin` (GitHub and Codeberg), and makes the release on each forge with the APK, its
-`.asc` and the public key. The notes come from the changelog, where anything written under
-`## Unreleased` joins the new entry. It asks before changing anything; `--dry-run` only
+tag to `origin` (GitHub and Codeberg), and makes the release on each forge with the APK,
+`SHA256SUMS`, their `.asc` and the public key. Before it tags or pushes anything, it checks
+the signatures of the APK and of `SHA256SUMS` as a user would, in a temporary `GNUPGHOME`
+with only the public key, and the signature of the tag; if one fails, nothing is published.
+The notes come from the changelog, where anything written under `## Unreleased` joins the
+new entry. When py-words has no newer tag but the changelogs have an `## Unreleased`
+section, it releases those changes of the app alone, with the same py-words. A release
+already made that lacks a file (as 2.5 lacked `SHA256SUMS`) gets it, if the files it has
+are those in `dist/`. It asks before changing anything; `--dry-run` only
 says what it would do, and `--only-if-changed` does nothing when, of what the app carries,
 only the number of the version changed. It needs `gh`, `tea`, `gpg`, a clean `main` and the
 signing keys of `keystore.properties`. If it stops after the commit, running it again
@@ -109,6 +115,13 @@ To check a download:
 ```sh
 gpg --import py-words-signing-key.asc
 gpg --verify py-words-android-VERSION.apk.asc py-words-android-VERSION.apk
+```
+
+Since 2.5 each release also has `SHA256SUMS`, with the SHA-256 of the APK, and its signature:
+
+```sh
+gpg --verify SHA256SUMS.asc SHA256SUMS
+sha256sum -c SHA256SUMS
 ```
 
 ## F-Droid

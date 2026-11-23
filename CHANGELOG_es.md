@@ -4,6 +4,17 @@ Los cambios de py-words para Android. El código está en
 [GitHub](https://github.com/nivaca/py-words-android) y en
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
+## Sin publicar
+
+- Cada versión lleva también `SHA256SUMS`, con el SHA-256 del APK, y su
+  firma OpenPGP `SHA256SUMS.asc`; la 2.5 los recibió después. Antes de
+  etiquetar o subir nada, `tools/update-py-words.py` comprueba todas las
+  firmas solo con la clave pública, como lo haría un usuario, y la de la
+  etiqueta, y se detiene si alguna falla.
+- `tools/update-py-words.py` publica también cambios de la app solos,
+  con el mismo py-words, cuando los registros de cambios tienen una
+  sección «Sin publicar» (la 2.5 fue la primera).
+
 ## 2.5 — 2026-11-23
 
 - El menú ya no elige entre la página web y el diccionario del teléfono:

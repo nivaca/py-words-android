@@ -4,6 +4,17 @@ All notable changes to py-words for Android. The source is on
 [GitHub](https://github.com/nivaca/py-words-android) and
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
+## Unreleased
+
+- Each release also carries `SHA256SUMS`, with the SHA-256 of the APK,
+  and its OpenPGP signature `SHA256SUMS.asc`; 2.5 got them afterwards.
+  Before tagging or pushing, `tools/update-py-words.py` checks every
+  signature with only the public key, as a user would, and the signature
+  of the tag, and stops if one fails.
+- `tools/update-py-words.py` also releases changes of the app alone,
+  with the same py-words, when the changelogs have an "Unreleased"
+  section (2.5 was the first).
+
 ## 2.5 — 2026-11-23
 
 - The menu no longer chooses between the web page and the dictionary on

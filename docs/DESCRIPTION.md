@@ -175,6 +175,17 @@ which already holds them. A third way, an app that downloads py-words by itself,
 no new versions at all; it would also need to check signatures at run time, and a first
 start without the Internet would have nothing to run.
 
+With 2.5 the script learnt two more things. The change of the menu was a change of the app
+alone, with the same py-words, and the script only knew how to release a new py-words; now,
+when py-words has no newer tag but the changelogs have an "Unreleased" section, it releases
+those changes by themselves. And each release now carries `SHA256SUMS`, with the SHA-256
+of the APK, and its OpenPGP signature, as my other projects do. Before it tags or pushes
+anything, the script checks the signatures of the APK and of `SHA256SUMS` in a temporary
+`GNUPGHOME` that holds only the published public key, the way someone who downloads them
+would, and the signature of the tag; one that does not verify stops it. 2.5 was released
+before that part, so the script also learnt to add the missing files to a release already
+made, but only when the files it has are the same as those in `dist/`.
+
 3.29 changed nothing that the app carries except the number of the version. The script
 says so in the changelog, and `--only-if-changed` skips such releases. On the phone,
 Obtainium watches the releases on GitHub and installs each new APK over the old one, since
@@ -233,7 +244,11 @@ menu of sources are the four screenshots of the store.
 I tried `tools/update-py-words.py` in a clone of the repository, outside the real one:
 with `--dry-run`, for 3.28 to 3.29, with `--only-if-changed` (which stopped, since only
 `version.py` changed), and with an older tag (which it refuses); and the edits themselves,
-whose diff I read, with and without an "Unreleased" section in the changelogs.
+whose diff I read, with and without an "Unreleased" section in the changelogs. For
+`SHA256SUMS`, a dry run said that 2.5 lacked it; the real run made it, signed it, checked
+the signatures with the public key alone and added the two files to both releases. Then I
+downloaded them from GitHub and from Codeberg: on both, `sha256sum -c SHA256SUMS` passes,
+and `gpg --verify` with only the published key finds a good signature.
 
 For the move of the site to the settings, the app compiles without warnings and Android lint
 reports no errors. On the emulator I opened the menu (Reload and Settings, and Open in the
@@ -246,4 +261,4 @@ tried there.
 The project has 20 files under `app/` besides the build output: two Kotlin files of 434
 lines, one Python file of 45, 272 lines of XML in the manifest, the resources and the
 layout, and five PNG images of the icon. The build file of the app has 129 lines, and
-`tools/update-py-words.py`, 475.
+`tools/update-py-words.py`, 631.

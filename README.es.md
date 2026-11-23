@@ -79,8 +79,14 @@ Mueve el submódulo a la etiqueta más nueva de py-words (o a la de `--tag`), su
 README, los registros de cambios y `docs/`, y compila el APK firmado; si la compilación
 falla, deshace esos cambios. Luego confirma (`vVERSIÓN: py-words X.YY`), firma la etiqueta,
 sube `main` y la etiqueta a `origin` (GitHub y Codeberg) y crea la versión en cada forja, con
-el APK, su `.asc` y la clave pública. Las notas salen del registro de cambios, donde lo que
-esté bajo `## Sin publicar` pasa a la entrada nueva. Pregunta antes de cambiar nada;
+el APK, `SHA256SUMS`, sus `.asc` y la clave pública. Antes de etiquetar o subir nada,
+comprueba las firmas del APK y de `SHA256SUMS` como lo haría un usuario, en un `GNUPGHOME`
+temporal que solo tiene la clave pública, y la firma de la etiqueta; si una falla, no publica
+nada. Las notas salen del registro de cambios, donde lo que esté bajo `## Sin publicar` pasa
+a la entrada nueva. Si py-words no tiene una etiqueta más nueva pero los registros de cambios
+tienen una sección `## Sin publicar`, publica solos esos cambios de la app, con el mismo
+py-words. A una versión ya publicada a la que le falte un archivo (como a la 2.5 le faltaba
+`SHA256SUMS`) se lo añade, si los que tiene son los de `dist/`. Pregunta antes de cambiar nada;
 `--dry-run` solo dice qué haría, y `--only-if-changed` no hace nada si, de lo que la app
 lleva, solo cambió el número de la versión. Necesita `gh`, `tea`, `gpg`, `main` sin cambios
 por confirmar y las claves de `keystore.properties`. Si se detiene después de confirmar,
@@ -110,6 +116,13 @@ con ella. Para comprobar una descarga:
 ```sh
 gpg --import py-words-signing-key.asc
 gpg --verify py-words-android-VERSIÓN.apk.asc py-words-android-VERSIÓN.apk
+```
+
+Desde la 2.5 cada versión lleva también `SHA256SUMS`, con el SHA-256 del APK, y su firma:
+
+```sh
+gpg --verify SHA256SUMS.asc SHA256SUMS
+sha256sum -c SHA256SUMS
 ```
 
 ## F-Droid
