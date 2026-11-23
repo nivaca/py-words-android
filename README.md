@@ -9,7 +9,7 @@ of two sources, and a menu at the top changes from one to the other:
 
 - **Online**: the site <https://py-words.uniandes.edu.co>, which needs the Internet.
 - **On this phone**: py-words itself, which runs inside the app, without the Internet. The
-  app carries a copy of the program and its data (now py-words 3.29) and a Python 3.13 to
+  app carries a copy of the program and its data (now py-words 3.30) and a Python 3.13 to
   run it.
 
 Both show the same page, with the same searches, results and settings; the app is only a

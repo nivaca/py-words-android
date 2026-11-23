@@ -1,4 +1,4 @@
-# py-words para Android 2.3: descripción
+# py-words para Android 2.4: descripción
 
 *[Read in English](DESCRIPTION.md)*
 
@@ -16,7 +16,7 @@ Hay una pantalla, `MainActivity.kt`, y un objeto, `LocalServer.kt`. La vista tie
 
 La decisión principal fue no hacer nada que py-words ya haga. Su página se genera en el servidor, con formularios corrientes (`GET /?q=…` para buscar, `POST` para los ajustes); guarda los ajustes y las búsquedas anteriores en una galleta, y tiene su propia versión oscura bajo `prefers-color-scheme: dark`. Para la fuente del teléfono se siguió la misma idea: en vez de escribir otra interfaz, la app corre la aplicación WSGI del sitio, `public_app()` de `words_web.py`, en `127.0.0.1`, y el WebView la abre como abriría el sitio. Esa aplicación guarda todo en las galletas de cada visitante y nada en el servidor, de modo que en el teléfono tampoco escribe más que la caché del diccionario.
 
-py-words entra en el proyecto como submódulo de git (`py-words/`), fijado en una etiqueta de su repositorio, hoy `v3.29`. La app guarda en sus preferencias solo la fuente elegida; si nadie eligió, empieza en el teléfono (en la 2.0 empezaba en línea).
+py-words entra en el proyecto como submódulo de git (`py-words/`), fijado en una etiqueta de su repositorio, hoy `v3.30`. La app guarda en sus preferencias solo la fuente elegida; si nadie eligió, empieza en el teléfono (en la 2.0 empezaba en línea).
 
 Fuera de Chaquopy, que trae Python, la app usa solo el framework de Android, sin AndroidX, igual que Wiktionary Reader, de la que hereda los archivos de Gradle, el tema y el manejo de las barras del sistema.
 

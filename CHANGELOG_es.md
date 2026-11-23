@@ -4,6 +4,13 @@ Los cambios de py-words para Android. El código está en
 [GitHub](https://github.com/nivaca/py-words-android) y en
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
+## 2.4 — 2026-11-22
+
+- py-words 3.30, en lugar de la 3.29 ([sus
+  cambios](https://github.com/nivaca/py-words/blob/main/CHANGELOG_es.md)).
+  El diccionario y su página son los mismos de la 3.29; solo cambió el
+  número de la versión.
+
 ## 2.3 — 2026-11-22
 
 - py-words 3.29, en lugar de la 3.28 ([sus
