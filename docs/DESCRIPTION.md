@@ -4,14 +4,15 @@ How py-words for Android was made
 *[Leer en español](DESCRIPCIÓN_es.md)*
 
 py-words for Android is an Android app for py-words, the Latin-English-Latin and
-Latin-Spanish-Latin dictionary with inflectional morphology. It shows py-words either from
-the site <https://py-words.uniandes.edu.co> or from a copy of the program that runs inside
-the app, without the Internet. Nicolas Vaughan made it in November 2026. It came from the
+Latin-Spanish-Latin dictionary with inflectional morphology. It shows py-words from a copy
+of the program that runs inside the app, without the Internet, or, if one asks for it in
+the settings, from the site <https://py-words.uniandes.edu.co>. Nicolas Vaughan made it in November 2026. It came from the
 Wiktionary Reader app, made the same month, which gave it its build files and its manner of
 working. Version 1.0 only showed the site; version 2.0 added the copy on the phone, and
 2.1 made it the default source; 2.2 is only for ARM devices and has a listing for F-Droid.
-From 2.3 on, each release of py-words brings a new version of the app, made by a script.
-Here I explain how it was made, in seven stages.
+From 2.3 on, each release of py-words brings a new version of the app, made by a script;
+after 2.4 the choice of the site left the menu for the settings. Here I explain how it was
+made, in eight stages.
 
 py-words for Android is free software, under the GNU General Public License, version 3 or
 later. It uses the Android framework, the Kotlin standard library (under the Apache License
@@ -179,6 +180,28 @@ says so in the changelog, and `--only-if-changed` skips such releases. On the ph
 Obtainium watches the releases on GitHub and installs each new APK over the old one, since
 all are signed with the same key.
 
+8. The site, in the settings
+-----------------------------
+
+Until 2.4 the menu at the top offered the two sources side by side, Online and On this
+phone, as if they were equal. They were not, after 2.1: the phone works anywhere and has
+the newer py-words, and the site is only useful to someone who wants it in particular. So
+I took the choice out of the menu, which now has Reload, Settings and, with the site, Open
+in the browser. Settings is a small dialog of the app, separate from the settings of
+py-words in its page, with one option, "Use the web page (py-words.uniandes.edu.co, needs
+the Internet) instead of the dictionary on this phone", off unless one turns it on.
+Changing it does what the menu did: the same search opens in the other source, and the
+history is forgotten.
+
+Whoever had chosen Online before keeps it, since the preference is the same one; the
+option in Settings shows it ticked, and unticking it brings back the phone. The bar at the
+top still says where the page comes from, and the error screen of the site still offers the
+copy on the phone.
+
+Trying it showed an old fault, which the menu had too: a change to the site while the
+phone was still loading left "Loading the dictionary…" over the page. Now each change of
+source hides that layer first.
+
 Testing
 -------
 
@@ -212,7 +235,15 @@ with `--dry-run`, for 3.28 to 3.29, with `--only-if-changed` (which stopped, sin
 `version.py` changed), and with an older tag (which it refuses); and the edits themselves,
 whose diff I read, with and without an "Unreleased" section in the changelogs.
 
-The project has 20 files under `app/` besides the build output: two Kotlin files of 414
-lines, one Python file of 45, 270 lines of XML in the manifest, the resources and the
+For the move of the site to the settings, the app compiles without warnings and Android lint
+reports no errors. On the emulator I opened the menu (Reload and Settings, and Open in the
+browser only with the site), turned the site on while the phone was loading, which showed
+the fault above and, after the fix, the page of the site; closed and opened the app, which
+came back on the site with the option ticked; and turned it off, which brought back the
+phone. The emulator is x86_64, where Python does not start, so the phone itself was not
+tried there.
+
+The project has 20 files under `app/` besides the build output: two Kotlin files of 434
+lines, one Python file of 45, 272 lines of XML in the manifest, the resources and the
 layout, and five PNG images of the icon. The build file of the app has 129 lines, and
 `tools/update-py-words.py`, 475.

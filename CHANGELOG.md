@@ -4,6 +4,16 @@ All notable changes to py-words for Android. The source is on
 [GitHub](https://github.com/nivaca/py-words-android) and
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
+## Unreleased
+
+- The menu no longer chooses between the web page and the dictionary on
+  the phone: it has **Reload**, **Settings** and, with the web page,
+  **Open in the browser**. The web page is now an option in
+  **Settings** ("Use the web page…"), off unless chosen; the dictionary
+  on the phone is always the default.
+- A change to the web page while the dictionary on the phone was
+  still loading left "Loading the dictionary…" over the page; no more.
+
 ## 2.4 — 2026-11-22
 
 - py-words 3.30, in place of 3.29 ([its

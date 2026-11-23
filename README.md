@@ -4,16 +4,13 @@
 
 py-words for Android is an Android app for
 [py-words](https://github.com/nivaca/py-words), the Latin-English-Latin and
-Latin-Spanish-Latin dictionary with inflectional morphology. It can show py-words from one
-of two sources, and a menu at the top changes from one to the other:
+Latin-Spanish-Latin dictionary with inflectional morphology. It shows py-words itself,
+which runs inside the app, without the Internet: the app carries a copy of the program and
+its data (now py-words 3.30) and a Python 3.13 to run it.
 
-- **Online**: the site <https://py-words.uniandes.edu.co>, which needs the Internet.
-- **On this phone**: py-words itself, which runs inside the app, without the Internet. The
-  app carries a copy of the program and its data (now py-words 3.30) and a Python 3.13 to
-  run it.
-
-Both show the same page, with the same searches, results and settings; the app is only a
-window for it. The app starts on the phone, unless you have chosen Online.
+In the settings of the app you can choose the web page instead, the site
+<https://py-words.uniandes.edu.co>, which needs the Internet. Both show the same page, with
+the same searches, results and settings; the app is only a window for it.
 
 I am Nicolas Vaughan (<nicolasvaughan@proton.me>), and I wrote it in 2026.
 
@@ -21,8 +18,9 @@ I am Nicolas Vaughan (<nicolasvaughan@proton.me>), and I wrote it in 2026.
 
 - py-words full screen, under a thin bar that says where it comes from, in light or dark
   mode as the system says.
-- The menu (⋮): **Online** or **On this phone**, **Reload**, and, online, **Open in the
-  browser**. Changing the source keeps the search on the screen.
+- The menu (⋮): **Reload**, **Settings** and, with the web page, **Open in the browser**.
+  In **Settings**, "Use the web page" changes the source; the search on the screen is
+  kept.
 - On this phone, the dictionary loads in a few seconds the first time (it is unpacked and
   its cache is made), and faster afterwards. Only Logeion, a source that py-words can
   search, still needs the Internet.

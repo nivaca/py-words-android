@@ -3,8 +3,9 @@
 // This file is part of py-words for Android. See the LICENSE file for details.
 
 // La única pantalla de la app: py-words en un WebView, de una de dos fuentes.
-// En línea es el sitio py-words.uniandes.edu.co; en el teléfono, el mismo
-// programa, que corre en la app (véase LocalServer) y no necesita internet.
+// Por omisión, el teléfono: el programa corre en la app (véase LocalServer) y
+// no necesita internet.  En los ajustes se puede pedir en su lugar la página
+// web, el sitio py-words.uniandes.edu.co.
 // Todo lo demás (la búsqueda, los resultados, los ajustes) lo hace py-words;
 // la app le da una ventana, abre fuera los enlaces a otros sitios y recibe
 // las palabras que le mandan otras apps.
@@ -13,6 +14,7 @@ package io.github.nivaca.pywords
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -125,6 +127,9 @@ class MainActivity : Activity() {
     /** Opens the current source, restoring SAVED if it was the same one. */
     private fun begin(saved: Bundle?) {
         error.visibility = View.GONE
+        // Si se cambia de fuente mientras el teléfono aún carga, la capa de
+        // carga no debe quedarse encima de la página web.
+        loading.visibility = View.GONE
         updateLabel()
         when (source) {
             Source.ONLINE -> ready(ONLINE, saved)
@@ -179,23 +184,37 @@ class MainActivity : Activity() {
         }
     }
 
+    // El menú ya no elige la fuente: el teléfono es la de siempre, y la
+    // página web queda en los ajustes, para quien la quiera.
     private fun showMenu(anchor: View) {
         val menu = PopupMenu(this, anchor)
-        menu.menu.add(0, MENU_ONLINE, 0, R.string.menu_online).isChecked = source == Source.ONLINE
-        menu.menu.add(0, MENU_PHONE, 1, R.string.menu_phone).isChecked = source == Source.PHONE
-        menu.menu.setGroupCheckable(0, true, true)
-        menu.menu.add(1, MENU_RELOAD, 2, R.string.menu_reload)
-        if (source == Source.ONLINE) menu.menu.add(1, MENU_BROWSER, 3, R.string.menu_browser)
+        menu.menu.add(0, MENU_RELOAD, 0, R.string.menu_reload)
+        if (source == Source.ONLINE) menu.menu.add(0, MENU_BROWSER, 1, R.string.menu_browser)
+        menu.menu.add(0, MENU_SETTINGS, 2, R.string.menu_settings)
         menu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                MENU_ONLINE -> switchTo(Source.ONLINE)
-                MENU_PHONE -> switchTo(Source.PHONE)
                 MENU_RELOAD -> if (base == null) retry() else { error.visibility = View.GONE; web.reload() }
                 MENU_BROWSER -> openOutside(Uri.parse(web.url ?: ONLINE))
+                MENU_SETTINGS -> showSettings()
             }
             true
         }
         menu.show()
+    }
+
+    /** The settings of the app (py-words keeps its own on its page). */
+    private fun showSettings() {
+        val checked = booleanArrayOf(source == Source.ONLINE)
+        AlertDialog.Builder(this)
+            .setTitle(R.string.settings)
+            .setMultiChoiceItems(arrayOf(getString(R.string.setting_online)), checked) { _, _, on ->
+                checked[0] = on
+            }
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                switchTo(if (checked[0]) Source.ONLINE else Source.PHONE)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     // ---- words from other apps ----------------------------------------------- //
@@ -362,9 +381,8 @@ class MainActivity : Activity() {
         const val MAX_QUERY = 500
         private const val PREF_SOURCE = "source"
         private const val STATE_BASE = "base"
-        private const val MENU_ONLINE = 1
-        private const val MENU_PHONE = 2
-        private const val MENU_RELOAD = 3
-        private const val MENU_BROWSER = 4
+        private const val MENU_RELOAD = 1
+        private const val MENU_BROWSER = 2
+        private const val MENU_SETTINGS = 3
     }
 }

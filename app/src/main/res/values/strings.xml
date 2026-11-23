@@ -7,8 +7,9 @@
     <string name="source_online">Online · py-words.uniandes.edu.co</string>
     <string name="source_phone">On this phone · py-words %1$s</string>
     <string name="source_phone_short">On this phone</string>
-    <string name="menu_online">Online (py-words.uniandes.edu.co)</string>
-    <string name="menu_phone">On this phone (no Internet needed)</string>
+    <string name="menu_settings">Settings</string>
+    <string name="settings">Settings</string>
+    <string name="setting_online">Use the web page (py-words.uniandes.edu.co, needs the Internet) instead of the dictionary on this phone</string>
     <string name="menu_reload">Reload</string>
     <string name="menu_browser">Open in the browser</string>
     <string name="loading">Loading the dictionary…</string>

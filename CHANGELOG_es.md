@@ -4,6 +4,17 @@ Los cambios de py-words para Android. El código está en
 [GitHub](https://github.com/nivaca/py-words-android) y en
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
+## Sin publicar
+
+- El menú ya no elige entre la página web y el diccionario del teléfono:
+  tiene **Volver a cargar**, **Ajustes** y, con la página web, **Abrir
+  en el navegador**. La página web es ahora una opción de **Ajustes**
+  («Usar la página web…»), apagada si no se elige; el diccionario del
+  teléfono es siempre el de omisión.
+- Si se cambiaba a la página web mientras el diccionario del teléfono
+  aún cargaba, «Cargando el diccionario…» se quedaba sobre la página;
+  ya no.
+
 ## 2.4 — 2026-11-22
 
 - py-words 3.30, en lugar de la 3.29 ([sus

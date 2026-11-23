@@ -4,16 +4,13 @@
 
 py-words para Android es una app de Android para
 [py-words](https://github.com/nivaca/py-words), el diccionario latín-inglés-latín y
-latín-español-latín con morfología flexiva. Muestra py-words desde una de dos fuentes, y un
-menú arriba cambia de una a otra:
+latín-español-latín con morfología flexiva. Muestra py-words mismo, que
+corre dentro de la app, sin internet: la app lleva una copia del programa y de sus datos
+(ahora py-words 3.30) y un Python 3.13 para correrlo.
 
-- **En línea**: el sitio <https://py-words.uniandes.edu.co>, que necesita internet.
-- **En este teléfono**: py-words mismo, que corre dentro de la app, sin internet. La app
-  lleva una copia del programa y de sus datos (ahora py-words 3.30) y un Python 3.13 para
-  correrlo.
-
-Las dos muestran la misma página, con las mismas búsquedas, resultados y ajustes; la app es
-solo una ventana para ella. La app empieza en el teléfono, salvo que se haya elegido En línea.
+En los ajustes de la app se puede elegir en su lugar la página web, el sitio
+<https://py-words.uniandes.edu.co>, que necesita internet. Las dos muestran la misma página,
+con las mismas búsquedas, resultados y ajustes; la app es solo una ventana para ella.
 
 Soy Nicolás Vaughan (<nicolasvaughan@proton.me>) y la escribí en 2026.
 
@@ -21,9 +18,9 @@ Soy Nicolás Vaughan (<nicolasvaughan@proton.me>) y la escribí en 2026.
 
 - py-words a pantalla completa, bajo una barra fina que dice de dónde viene, en modo claro
   u oscuro según el sistema.
-- El menú (⋮): **En línea** o **En este teléfono**, **Volver a cargar** y, en línea,
-  **Abrir en el navegador**. Al cambiar de fuente se conserva la búsqueda que hay en
-  pantalla.
+- El menú (⋮): **Volver a cargar**, **Ajustes** y, con la página web, **Abrir en el
+  navegador**. En **Ajustes**, «Usar la página web» cambia de fuente; se conserva la
+  búsqueda que hay en pantalla.
 - En el teléfono, el diccionario carga en unos segundos la primera vez (se desempaca y se
   hace su caché), y más rápido después. Solo Logeion, una fuente en la que py-words puede
   buscar, sigue necesitando internet.

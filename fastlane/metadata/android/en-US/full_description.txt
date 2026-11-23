@@ -1,13 +1,6 @@
 <p>py-words is a Latin-English-Latin and Latin-Spanish-Latin dictionary with inflectional morphology: give it a Latin form, and it says what the form can be (case, number, tense, person …) and what the word means; give it an English or Spanish word, and it finds the Latin ones. It is based on William Whitaker's WORDS.</p>
 
-<p>This app shows py-words from one of two sources, and a menu at the top changes from one to the other:</p>
-
-<ul>
-<li><b>On this phone</b>: py-words itself runs inside the app, without the Internet. The app carries the program, its data and a Python to run it. This is the default.</li>
-<li><b>Online</b>: the site py-words.uniandes.edu.co.</li>
-</ul>
-
-<p>Both show the same page, with the same searches, results and settings.</p>
+<p>In this app, py-words itself runs on the phone, without the Internet: the app carries the program, its data and a Python to run it. If you prefer, the settings of the app let you use the web page instead, the site py-words.uniandes.edu.co. Both show the same page, with the same searches, results and settings.</p>
 
 <ul>
 <li>From any app: select a Latin word or line and choose <i>Look up in py-words</i>, or share a text with the app.</li>
