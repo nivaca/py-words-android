@@ -13,3 +13,5 @@ keystore.properties
 *~
 # Los APK que copia assembleRelease
 dist/
+# Python
+__pycache__/
