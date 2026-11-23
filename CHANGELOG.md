@@ -4,7 +4,7 @@ All notable changes to py-words for Android. The source is on
 [GitHub](https://github.com/nivaca/py-words-android) and
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
-## Unreleased
+## 2.5 — 2026-11-23
 
 - The menu no longer chooses between the web page and the dictionary on
   the phone: it has **Reload**, **Settings** and, with the web page,

@@ -4,7 +4,7 @@ Los cambios de py-words para Android. El código está en
 [GitHub](https://github.com/nivaca/py-words-android) y en
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
-## Sin publicar
+## 2.5 — 2026-11-23
 
 - El menú ya no elige entre la página web y el diccionario del teléfono:
   tiene **Volver a cargar**, **Ajustes** y, con la página web, **Abrir
