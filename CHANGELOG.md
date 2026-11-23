@@ -4,8 +4,12 @@ All notable changes to py-words for Android. The source is on
 [GitHub](https://github.com/nivaca/py-words-android) and
 [Codeberg](https://codeberg.org/nivaca/py-words-android).
 
-## Unreleased
+## 2.3 — 2026-11-22
 
+- py-words 3.29, in place of 3.28 ([its
+  changes](https://github.com/nivaca/py-words/blob/main/CHANGELOG.md)).
+  The dictionary and its page are the same as in 3.28; only the number
+  of the version changed.
 - `tools/update-py-words.py` puts the newest py-words in the app and
   releases the version of the app that carries it; the release tool of
   py-words runs it at the end of each release of py-words. The notes of

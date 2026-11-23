@@ -92,7 +92,7 @@ point the WebView at it.
 Python on Android comes from Chaquopy, a Gradle plugin that puts CPython in the APK. Its
 version 17.2 supports the Android plugin 9.5 of the project and Python 3.13, which py-words
 needs for now; Python 3.12 and later run only on 64-bit devices, so the app now asks for
-one. py-words enters the project as a git submodule, `py-words/`, fixed at a tag of its repository (now `v3.28`),
+one. py-words enters the project as a git submodule, `py-words/`, fixed at a tag of its repository (now `v3.29`),
 and a Gradle task copies from it only what the server needs: the Python modules (not the
 window or the terminal, which need tkinter or curses, absent on Android), `data/` and the
 two icons that the page shows. Chaquopy compiles them to bytecode with the `python3.13` of

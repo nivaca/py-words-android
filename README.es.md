@@ -9,7 +9,7 @@ menú arriba cambia de una a otra:
 
 - **En línea**: el sitio <https://py-words.uniandes.edu.co>, que necesita internet.
 - **En este teléfono**: py-words mismo, que corre dentro de la app, sin internet. La app
-  lleva una copia del programa y de sus datos (ahora py-words 3.28) y un Python 3.13 para
+  lleva una copia del programa y de sus datos (ahora py-words 3.29) y un Python 3.13 para
   correrlo.
 
 Las dos muestran la misma página, con las mismas búsquedas, resultados y ajustes; la app es
