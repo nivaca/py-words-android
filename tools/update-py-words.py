@@ -12,7 +12,10 @@ En orden:
    gh, tea y gpg estén instalados y que keystore.properties nombre la clave
    de firma del APK y la de gpg (gpgKey);
 2. trae las etiquetas de py-words y elige la más nueva (o la de --tag).  Si
-   el submódulo ya está en ella, no hay nada que hacer, salvo publicar una
+   el submódulo ya está en ella y los registros de cambios tienen una
+   sección «Unreleased» / «Sin publicar», publica una versión de la app con
+   esos cambios y el mismo py-words (los pasos 4 a 7, sin mover el
+   submódulo); si no la tienen, no hay nada que hacer, salvo publicar una
    versión de la app que haya quedado a medias (véase abajo);
 3. con --only-if-changed, se detiene si de una etiqueta a otra no cambió
    nada de lo que la app lleva (los módulos de Python, data/, los dos
@@ -223,14 +226,22 @@ class Update:
 
     # Paso 4: los cambios en los archivos --------------------------------
 
+    def bump(self, code: int, name: str):
+        """The new version in the build file and in the title of the
+        Spanish description."""
+        substitute(GRADLE, r'versionCode = \d+', f'versionCode = {code}')
+        substitute(GRADLE, r'versionName = "[\d.]+"',
+                   f'versionName = "{name}"')
+        substitute('docs/DESCRIPCIÓN_es.md',
+                   r'^# py-words para Android [\d.]+: descripción',
+                   f'# py-words para Android {name}: descripción')
+
     def edit(self, current: str, target: str, code: int, name: str,
              same: bool):
         old, new = current[1:], target[1:]
         run('git', 'checkout', '--quiet', target,
             cwd=os.path.join(ROOT, SUBMODULE))
-        substitute(GRADLE, r'versionCode = \d+', f'versionCode = {code}')
-        substitute(GRADLE, r'versionName = "[\d.]+"',
-                   f'versionName = "{name}"')
+        self.bump(code, name)
         substitute('README.md', r'\(now py-words [\d.]+\)',
                    f'(now py-words {new})')
         substitute('README.es.md', r'\(ahora py-words [\d.]+\)',
@@ -239,9 +250,6 @@ class Update:
                    rf'\1 `{target}`')
         substitute('docs/DESCRIPCIÓN_es.md', r'hoy `v[\d.]+`',
                    f'hoy `{target}`')
-        substitute('docs/DESCRIPCIÓN_es.md',
-                   r'^# py-words para Android [\d.]+: descripción',
-                   f'# py-words para Android {name}: descripción')
         today = datetime.date.today().isoformat()
         en = (f'- py-words {new}, in place of {old} ([its changes]'
               f'({CHANGELOG_URL}CHANGELOG.md)).')
@@ -269,6 +277,17 @@ class Update:
                            f'{heading}\n\n{wrap(item)}\n\n## ')
         run('git', 'add', SUBMODULE, GRADLE, 'README.md', 'README.es.md',
             'CHANGELOG.md', 'CHANGELOG_es.md', 'docs/DESCRIPTION.md',
+            'docs/DESCRIPCIÓN_es.md')
+
+    def edit_app(self, code: int, name: str):
+        """A version of the app alone: the sections «Unreleased» and «Sin
+        publicar» become its entries."""
+        self.bump(code, name)
+        heading = f'## {name} — {datetime.date.today().isoformat()}'
+        for path, pending in (('CHANGELOG.md', 'Unreleased'),
+                              ('CHANGELOG_es.md', 'Sin publicar')):
+            substitute(path, rf'^## {pending}$', heading)
+        run('git', 'add', GRADLE, 'CHANGELOG.md', 'CHANGELOG_es.md',
             'docs/DESCRIPCIÓN_es.md')
 
     def undo(self, current: str):
@@ -307,8 +326,9 @@ class Update:
         return f'''\
 py-words for Android shows [py-words](https://github.com/nivaca/py-words), \
 the Latin-English-Latin and Latin-Spanish-Latin dictionary with inflectional \
-morphology, either from the site <https://py-words.uniandes.edu.co> or from a \
-copy of py-words {new} that runs inside the app, without the Internet.
+morphology, from a copy of py-words {new} that runs inside the app, without \
+the Internet, or, if one chooses it in the settings of the app, from the site \
+<https://py-words.uniandes.edu.co>.
 
 What is new in {name}:
 
@@ -397,7 +417,9 @@ also carries Python (Python Software Foundation License) through Chaquopy \
         of the app if a run before stopped half-way."""
         code, name = app_version()
         subject = run('git', 'log', '-1', '--format=%s')
-        if subject != f'v{name}: py-words {current[1:]}':
+        # «vX.Y: py-words A.B», o «vX.Y: py-words A.B; …» si solo cambió la app.
+        if not re.fullmatch(rf'v{re.escape(name)}: py-words '
+                            rf'{re.escape(current[1:])}(;.*)?', subject):
             print(f'The app already carries py-words {current[1:]}.')
             return
         if ok('gh', 'release', 'view', f'v{name}'):
@@ -416,7 +438,11 @@ also carries Python (Python Software Foundation License) through Chaquopy \
         self.check()
         current, target = self.tags()
         if current == target:
-            self.resume(current)
+            if re.search(r'^## Unreleased$', read('CHANGELOG.md'),
+                         re.MULTILINE):
+                self.release_app(current)
+            else:
+                self.resume(current)
             return
         changed = self.bundled_changes(current, target)
         same = not changed
@@ -441,6 +467,29 @@ also carries Python (Python Software Foundation License) through Chaquopy \
         run('git', 'commit', '--quiet', '--message',
             f'v{name}: py-words {target[1:]}')
         self.publish(name, target[1:])
+
+    def release_app(self, current: str):
+        """py-words is the same; what changed is the app (the sections
+        «Unreleased» of the changelogs)."""
+        if not re.search(r'^## Sin publicar$', read('CHANGELOG_es.md'),
+                         re.MULTILINE):
+            sys.exit('update-py-words: CHANGELOG.md has an "Unreleased" '
+                     'section, but CHANGELOG_es.md has no "Sin publicar"')
+        code, name = app_version()
+        code, name = code + 1, next_name(name)
+        self.ask(
+            f'py-words stays at {current[1:]}; the app {name} (versionCode '
+            f'{code}) releases the "Unreleased" changes of the changelogs.\n'
+            'Build the signed APK, commit, tag, push to origin, and '
+            'release on GitHub and Codeberg.')
+        self.edit_app(code, name)
+        if not self.build():
+            self.undo(current)
+            sys.exit('update-py-words: the build failed; the changes are '
+                     'undone')
+        run('git', 'commit', '--quiet', '--message',
+            f'v{name}: py-words {current[1:]}; changes of the app')
+        self.publish(name, current[1:])
 
 
 def wrap(item: str, width=72) -> str:
