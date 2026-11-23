@@ -1,4 +1,4 @@
-# py-words para Android 2.5: descripción
+# py-words para Android 2.6: descripción
 
 *[Read in English](DESCRIPTION.md)*
 
