@@ -22,7 +22,9 @@ En orden:
    iconos), fuera del número de versión;
 4. mueve el submódulo a la etiqueta, sube versionCode y versionName (2.2 →
    2.3), y pone la versión nueva de py-words en los README, en los
-   registros de cambios y en los documentos de docs/;
+   registros de cambios y en los documentos de docs/, y escribe con
+   tools/store_notes.py las notas de la versión para las tiendas
+   (fastlane/metadata/android/*/changelogs/VERSIONCODE.txt);
 5. compila el APK firmado (./gradlew assembleRelease, que lo copia a dist/
    con su firma de OpenPGP; gpg pide la frase de paso).  Si la compilación
    falla, deshace los cambios del paso 4;
@@ -38,7 +40,10 @@ En orden:
    clave pública.  A una versión ya publicada le añade los archivos que le
    falten en cualquiera de las dos forjas (así recibió la 2.5 su
    SHA256SUMS), siempre que los que ya tiene en GitHub sean los mismos que
-   hay en dist/.
+   hay en dist/.  Al final pone el APK nuevo en el repositorio de F-Droid
+   propio y lo publica (../fdroid-repo/tools/update.py --publish), si ese
+   proyecto está junto a este; si falla, solo avisa, porque la versión ya
+   está publicada.
 
 Antes del paso 4 muestra lo que va a hacer y pregunta; con --yes no
 pregunta, y con --dry-run solo lo muestra.  Si algo falla después del
@@ -60,6 +65,8 @@ import subprocess
 import sys
 import tempfile
 
+import store_notes              # (tools/, junto a este script)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SUBMODULE = 'py-words'
 GRADLE = os.path.join('app', 'build.gradle.kts')
@@ -67,6 +74,9 @@ SIGNING_KEY = 'py-words-signing-key.asc'
 BRANCH = 'main'
 SUMS = os.path.join('dist', 'SHA256SUMS')
 TEA_LOGIN = 'codeberg'
+# The own F-Droid repository, next to this project: after each release it
+# gets the new APK (its tools/update.py checks it and publishes the site).
+FDROID_REPO = os.path.join(os.path.dirname(ROOT), 'fdroid-repo')
 
 DESCRIPTION = ('Put the newest py-words in the app, and release the version '
                'of the app that carries it on GitHub and Codeberg.')
@@ -285,9 +295,10 @@ class Update:
                 # La entrada nueva va antes de la primera versión de la lista.
                 substitute(path, r'^## ', lambda m, item=item:
                            f'{heading}\n\n{wrap(item)}\n\n## ')
+        notes = store_notes.write(code, name, force=True)
         run('git', 'add', SUBMODULE, GRADLE, 'README.md', 'README.es.md',
             'CHANGELOG.md', 'CHANGELOG_es.md', 'docs/DESCRIPTION.md',
-            'docs/DESCRIPCIÓN_es.md')
+            'docs/DESCRIPCIÓN_es.md', *notes)
 
     def edit_app(self, code: int, name: str):
         """A version of the app alone: the sections «Unreleased» and «Sin
@@ -297,12 +308,16 @@ class Update:
         for path, pending in (('CHANGELOG.md', 'Unreleased'),
                               ('CHANGELOG_es.md', 'Sin publicar')):
             substitute(path, rf'^## {pending}$', heading)
+        notes = store_notes.write(code, name, force=True)
         run('git', 'add', GRADLE, 'CHANGELOG.md', 'CHANGELOG_es.md',
-            'docs/DESCRIPCIÓN_es.md')
+            'docs/DESCRIPCIÓN_es.md', *notes)
 
     def undo(self, current: str):
         run('git', 'reset', '--quiet', 'HEAD', check=False)
         run('git', 'checkout', '--quiet', '--', '.', check=False)
+        # Las notas nuevas de las tiendas no estaban en git: se borran.
+        run('git', 'clean', '--quiet', '--force', '--', store_notes.FASTLANE,
+            check=False)
         run('git', 'checkout', '--quiet', current,
             cwd=os.path.join(ROOT, SUBMODULE), check=False)
 
@@ -472,6 +487,7 @@ also carries Python (Python Software Foundation License) through Chaquopy \
         finally:
             os.unlink(notes)
         print(f'\nReleased py-words for Android {name}, with py-words {new}.')
+        update_fdroid_repo()
 
     def add_missing_github(self, tag: str, files: list[str]):
         """Uploads to a release already made the files it lacks, if the ones
@@ -623,6 +639,23 @@ also carries Python (Python Software Foundation License) through Chaquopy \
         run('git', 'commit', '--quiet', '--message',
             f'v{name}: py-words {current[1:]}; changes of the app')
         self.publish(name, current[1:])
+
+
+def update_fdroid_repo():
+    """Puts the new APK in the own F-Droid repository and publishes it, if
+    that project is next to this one.  The release is already made, so a
+    failure here only warns."""
+    script = os.path.join(FDROID_REPO, 'tools', 'update.py')
+    if not os.path.isfile(script):
+        print(f'(There is no {FDROID_REPO}: the F-Droid repository is not '
+              'updated.)')
+        return
+    print('\nUpdating the F-Droid repository…', flush=True)
+    if subprocess.run([sys.executable, script, '--publish', '--yes'],
+                      cwd=FDROID_REPO).returncode != 0:
+        print('update-py-words: the release is made, but the F-Droid '
+              f'repository is not updated; run python3 {script} --publish',
+              file=sys.stderr)
 
 
 def sha256(path: str) -> str:

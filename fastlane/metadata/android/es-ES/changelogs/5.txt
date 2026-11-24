@@ -1,0 +1,2 @@
+• py-words 3.29, en lugar de la 3.28 (sus cambios). El diccionario y su página son los mismos de la 3.28; solo cambió el número de la versión.
+• tools/update-py-words.py pone en la app el py-words más nuevo y publica la versión de la app que lo lleva; la herramienta de versiones de py-words lo corre al final de cada versión de py-words. Las notas de cada versión dicen cómo recibir las nuevas solas con Obtainium.

@@ -12,7 +12,7 @@ working. Version 1.0 only showed the site; version 2.0 added the copy on the pho
 2.1 made it the default source; 2.2 is only for ARM devices and has a listing for F-Droid.
 From 2.3 on, each release of py-words brings a new version of the app, made by a script;
 after 2.4 the choice of the site left the menu for the settings. Here I explain how it was
-made, in eight stages.
+made, in nine stages.
 
 py-words for Android is free software, under the GNU General Public License, version 3 or
 later. It uses the Android framework, the Kotlin standard library (under the Apache License
@@ -212,6 +212,29 @@ copy on the phone.
 Trying it showed an old fault, which the menu had too: a change to the site while the
 phone was still loading left "Loading the dictionary…" over the page. Now each change of
 source hides that layer first.
+
+9. Where to get it
+------------------
+
+Up to here the only way to get the app was a release: download the APK, or let Obtainium
+follow the releases. The READMEs got an "Installing" section with a badge that adds the
+app to Obtainium in one touch; the link passes through Obtainium's own redirect page,
+which has analytics, so the README says so and gives the address to add by hand.
+
+Then a repository of my own for F-Droid, `fdroid-repo`, a project next to the two apps and
+published on Codeberg Pages (<https://nivaca.codeberg.page/fdroid/repo>). It offers the
+same signed APKs as the releases, so the repository, the releases and Obtainium update one
+another; its script checks each APK against the release and its signatures before adding
+it. F-Droid's main repository builds from source and signs with its own key, and it does
+not suit an APK that carries a prebuilt Python.
+
+Two things joined the release script. It writes the notes of each version for the stores,
+`fastlane/metadata/android/*/changelogs/VERSIONCODE.txt`, from the entry in the changelogs
+(`tools/store_notes.py`: plain text, one line per item, within F-Droid's 500 characters);
+until then they had stopped at 2.2, and F-Droid showed no "What's new". The notes of 2.3
+to 2.6 were written the same way, afterwards. And at the end of a release it runs the
+repository's `tools/update.py --publish`, so that F-Droid users get the new version too;
+if that fails, it only warns, since the release is already made.
 
 Testing
 -------

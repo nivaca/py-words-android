@@ -46,6 +46,10 @@ Al cambiar a modo oscuro, la actividad se crea de nuevo para tomar el tema oscur
 
 Es el de py-words. Para el icono adaptable se quitó su fondo, que pasó a ser el color de fondo (`#292929`), y el resto se redujo a la zona segura; Inkscape lo exporta como PNG en las cinco densidades.
 
+### Las notas de las tiendas y el repositorio de F-Droid
+
+Cada versión escribe sus notas para las tiendas (`fastlane/metadata/android/*/changelogs/VERSIONCODE.txt`) a partir del registro de cambios, con `tools/store_notes.py`: texto llano, una línea por punto, dentro de los 500 caracteres de F-Droid; hasta la 2.6 se habían quedado en la 2.2, y F-Droid no mostraba novedades. Al final de cada versión, `tools/update-py-words.py` pone el APK nuevo en el repositorio de F-Droid propio, `fdroid-repo` (https://nivaca.codeberg.page/fdroid/repo), con su `tools/update.py --publish`; si eso falla, solo avisa, porque la versión ya está publicada. Ese repositorio ofrece los mismos APK firmados de las versiones, así que él, las versiones y Obtainium se actualizan unos a otros.
+
 ## Validación
 
 La app no tiene pruebas automáticas; py-words tiene las suyas, y casi todo lo que importa es de py-words. Se comprobó a mano en el emulador de Android (Android 16), con capturas de pantalla tomadas por adb. En la 1.0: la portada; palabras enviadas desde el menú de la selección (*amicorum*, *rosa*, *lupus*); el gesto de volver; la pantalla de error sin red y el botón que, de vuelta la conexión, carga la misma búsqueda; el modo oscuro al abrir la app y al cambiarlo con la app abierta, y los ajustes, que sobrevivieron a cerrar la app. Esas pruebas mostraron dos defectos que se corrigieron (la barra de estado clara en modo oscuro y el gesto de volver tras recrear la actividad).
