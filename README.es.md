@@ -6,7 +6,7 @@ py-words para Android es una app de Android para
 [py-words](https://github.com/nivaca/py-words), el diccionario latín-inglés-latín y
 latín-español-latín con morfología flexiva. Muestra py-words mismo, que
 corre dentro de la app, sin internet: la app lleva una copia del programa y de sus datos
-(ahora py-words 3.30) y un Python 3.13 para correrlo.
+(ahora py-words 3.31) y un Python 3.13 para correrlo.
 
 En los ajustes de la app se puede elegir en su lugar la página web, el sitio
 <https://py-words.uniandes.edu.co>, que necesita internet. Las dos muestran la misma página,

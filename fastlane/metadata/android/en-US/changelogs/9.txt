@@ -1,0 +1,1 @@
+• py-words 3.31, in place of 3.30 (its changes). The dictionary and its page are the same as in 3.30; only the number of the version changed.
