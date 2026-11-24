@@ -14,6 +14,20 @@ con las mismas búsquedas, resultados y ajustes; la app es solo una ventana para
 
 Soy Nicolás Vaughan (<nicolasvaughan@proton.me>) y la escribí en 2026.
 
+## Instalación
+
+El APK firmado de cada versión está en las versiones publicadas, en
+[GitHub](https://github.com/nivaca/py-words-android/releases) y en
+[Codeberg](https://codeberg.org/nivaca/py-words-android/releases).
+
+[![Get it on Obtainium](docs/img/badge_obtainium.png)](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22io.github.nivaca.pywords%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fnivaca%2Fpy-words-android%22%2C%22author%22%3A%22nivaca%22%2C%22name%22%3A%22py-words%22%7D)
+
+Con [Obtainium](https://github.com/ImranR98/Obtainium), el teléfono instala la versión más
+nueva y luego cada una sobre la anterior. La insignia añade la app a Obtainium de un toque, si
+Obtainium está instalado (el enlace pasa por la página de redirección de Obtainium, que tiene
+analítica); sin ella, la app se añade a mano en Obtainium con la dirección
+`https://github.com/nivaca/py-words-android`.
+
 ## Qué hace
 
 - py-words a pantalla completa, bajo una barra fina que dice de dónde viene, en modo claro
@@ -93,9 +107,7 @@ por confirmar y las claves de `keystore.properties`. Si se detiene después de c
 correrlo de nuevo publica lo que falte.
 
 `tools/release.py` de py-words lo corre al final de cada versión de py-words, así que la app
-sigue a py-words sin que nadie tenga que acordarse. En el teléfono,
-[Obtainium](https://github.com/ImranR98/Obtainium) puede seguir las versiones de este
-repositorio e instalar cada APK nuevo sobre el anterior.
+sigue a py-words sin que nadie tenga que acordarse.
 
 ## Versiones y firma
 
