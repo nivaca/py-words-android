@@ -422,7 +422,9 @@ It needs a 64-bit ARM device with Android 10 or newer.
 **Install:** download `py-words-android-{name}.apk` and open it on the phone \
 (Android will ask to allow installs from that source). It is signed with the \
 same key as the earlier versions, so it installs over them. To get each new \
-version by itself, add this repository to Obtainium.
+version by itself, add this repository to Obtainium, or add the F-Droid \
+repository `https://nivaca.codeberg.page/fdroid/repo` to F-Droid (see \
+"Installing" in the README).
 
 **Verify:**
 

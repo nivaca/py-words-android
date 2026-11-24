@@ -152,6 +152,12 @@ their tags. It deletes `py-words/TAGS` (an Emacs tags file) before building, bec
 F-Droid's scanner takes it for a binary. F-Droid signs the apps with its own key, so its
 APK and the one in the releases here cannot update each other.
 
+The notes of each version are written by the release script, from the changelogs
+(`tools/store_notes.py`). The app is also in my own F-Droid repository (see "Installing"),
+which offers the signed APKs of the releases themselves, so that it, the releases and
+Obtainium do update one another; the release script publishes each new version there. Its
+source is [nivaca/fdroid](https://codeberg.org/nivaca/fdroid) on Codeberg.
+
 ## How it works
 
 `MainActivity.kt` is the only screen: a WebView, the bar with the menu, and the screens for

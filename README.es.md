@@ -153,6 +153,13 @@ nuevas por sus etiquetas. Antes de compilar borra `py-words/TAGS` (un archivo de
 de Emacs), porque el analizador de F-Droid lo toma por un binario. F-Droid firma las apps con
 su propia clave, así que su APK y el de las versiones publicadas aquí no se actualizan entre sí.
 
+Las notas de cada versión las escribe el script de publicación, a partir de los registros
+de cambios (`tools/store_notes.py`). La app está también en mi propio repositorio de F-Droid
+(véase «Instalación»), que ofrece los mismos APK firmados de las versiones publicadas, así
+que él, esas versiones y Obtainium sí se actualizan unos a otros; el script de publicación
+pone allí cada versión nueva. Su código es [nivaca/fdroid](https://codeberg.org/nivaca/fdroid),
+en Codeberg.
+
 ## Cómo funciona
 
 `MainActivity.kt` es la única pantalla: un WebView, la barra con el menú y las pantallas de
