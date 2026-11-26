@@ -1,0 +1,1 @@
+• py-words 3.32, en lugar de la 3.31 (sus cambios).

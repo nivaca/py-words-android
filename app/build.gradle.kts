@@ -21,8 +21,8 @@ android {
         applicationId = "io.github.nivaca.pywords"
         minSdk = 29
         targetSdk = 36
-        versionCode = 9
-        versionName = "2.7"
+        versionCode = 10
+        versionName = "2.8"
 
         // Python 3.12 y posteriores solo corren en dispositivos de 64 bits.
         // Desde la 2.2, solo ARM (arm64-v8a): en el emulador x86_64 la
